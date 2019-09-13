@@ -9,7 +9,8 @@ public class Player {
     int money;
     int prestigeToBeGained;
     int prestige;
-    public List<Upgrade> upgrades = new ArrayList<Upgrade>();
+    public List<Upgrade> upgrades = new ArrayList<>();
+    public List<Item> items = new ArrayList<>();
 
     public Player() {
         money = 60;
@@ -42,6 +43,14 @@ public class Player {
             for (Upgrade u : upgrades) {
                 System.out.println(u.name);
             }
+        }
+    }
+
+    public void purchaseItem(Item i) {
+        if (money >= i.cost) {
+            items.add(i);
+            money -= i.cost;
+            System.out.println("You have purchased the item" + i.name + "! You have " + money + " dollars left.");
         }
     }
 }

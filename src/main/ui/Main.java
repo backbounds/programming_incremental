@@ -14,8 +14,10 @@ public class Main {
 
         System.out.println("Hello, " + player.name + " your account has " + player.money + " to start with.");
 
-        Upgrade firstClick = new Upgrade("First Clicker", 10, 1.2);
-        Upgrade upgradedClicker = new Upgrade("Upgraded Clicker", 50, 1.5);
+        Item basicClicker = new Item("Basic Clicker", 10, 0.1);
+
+        Upgrade firstClick = new Upgrade("First Clicker", 10, 1.2, basicClicker);
+        Upgrade upgradedClicker = new Upgrade("Upgraded Clicker", 50, 1.5, basicClicker);
 
         player.purchaseUpgrade(firstClick);
         player.purchaseUpgrade(upgradedClicker);
