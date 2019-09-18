@@ -1,12 +1,12 @@
-package ui;
+package model;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    String name;
-    int money;
+    private String name;
+    private int money;
     int prestigeToBeGained;
     int prestige;
     public List<Upgrade> upgrades = new ArrayList<>();
@@ -16,6 +16,16 @@ public class Player {
         money = 60;
     }
 
+    //getters
+    public String getName() {
+        return name;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    //setters
     public void setName(String name) {
         this.name = name;
     }
