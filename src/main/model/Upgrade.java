@@ -1,11 +1,11 @@
 package model;
 
 public class Upgrade {
-    String name;
-    int cost;
+    public String name;
+    public int cost;
     double effect;
-    String description;
-    Item item;
+    public String description;
+    public Item item;
 
     public Upgrade(String name, int cost, double effect, Item item) {
         this.name = name;

@@ -23,7 +23,7 @@ public class Game {
         Scanner inputName = new Scanner(System.in);
         player.setName(inputName.next());
         String name = player.getName();
-        System.out.println("Hello, " + name + " your account has " + money + " to start with.");
+        System.out.println("Hello, " + name + ", your account has " + money + " to start with.");
 
     }
 

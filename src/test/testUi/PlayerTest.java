@@ -51,4 +51,25 @@ public class PlayerTest {
         assertEquals(5, p.getItemNumber(cheapItem));
     }
 
+    @Test
+    public void prestigePlayer(){
+        p.setMoney(150);
+        p.setPrestigeToBeGained(20);
+        p.addItem(cheapItem, 6);
+        p.purchaseUpgrade(cheapUpgrade);
+
+        assertTrue(p.itemsContain(cheapItem));
+        assertEquals(6, p.getItem(cheapItem).getNumber());
+        assertTrue(p.upgradesContain(cheapUpgrade));
+        assertEquals(0, p.getPrestige());
+
+        p.prestigePlayer();
+
+        assertEquals(1, p.getMoney());
+        assertTrue(p.getItems().isEmpty());
+        assertTrue(p.getUpgrades().isEmpty());
+        assertEquals(p.getPrestigeToBeGained(), 0);
+        assertEquals(p.getPrestige(), 20);
+    }
+
 }

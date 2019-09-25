@@ -1,12 +1,24 @@
 package model;
 
 public class ItemCollection {
-    public Item item;
-    public int number;
+    private Item item;
+    private int number;
 
     public ItemCollection(Item item, int number) {
         this.item = item;
         this.number = number;
+    }
+
+    //getters
+
+    //EFFECTS: returns item
+    public Item getItem() {
+        return item;
+    }
+
+    //EFFECTS: returns number
+    public int getNumber() {
+        return number;
     }
 
     //REQUIRES: number is positive

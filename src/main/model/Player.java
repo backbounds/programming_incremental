@@ -7,8 +7,8 @@ import java.util.List;
 public class Player {
     private String name;
     private int money;
-    int prestigeToBeGained;
-    int prestige;
+    private int prestigeToBeGained;
+    private int prestige;
     private List<Upgrade> upgrades = new ArrayList<>();
     private List<ItemCollection> items = new ArrayList<>();
 
@@ -28,6 +28,21 @@ public class Player {
         return money;
     }
 
+    public int getPrestige() {
+        return prestige;
+    }
+
+    public int getPrestigeToBeGained() {
+        return prestigeToBeGained;
+    }
+
+    public List<ItemCollection> getItems() {
+        return items;
+    }
+
+    public List<Upgrade> getUpgrades() {
+        return upgrades;
+    }
 
     //setters
 
@@ -42,6 +57,11 @@ public class Player {
         this.money = money;
     }
 
+    //EFFECTS: add prestige points
+    public void setPrestigeToBeGained(int prestigeToBeGained) {
+        this.prestigeToBeGained = prestigeToBeGained;
+    }
+
     //helpers
 
 
@@ -54,7 +74,7 @@ public class Player {
     //EFFECTS: returns true if player has the item, false otherwise
     public boolean itemsContain(Item i) {
         for (ItemCollection ic: items) {
-            if (ic.item.equals(i)) {
+            if (ic.getItem().equals(i)) {
                 return true;
             }
         }
@@ -65,8 +85,8 @@ public class Player {
     //EFFECTS: returns the number of the particular item the player has
     public int getItemNumber(Item i) {
         for (ItemCollection ic: items) {
-            if (ic.item.equals(i)) {
-                return ic.number;
+            if (ic.getItem().equals(i)) {
+                return ic.getNumber();
             }
         }
         return 0;
@@ -76,7 +96,7 @@ public class Player {
     //EFFECTS: gets a specific item from the player's items
     public ItemCollection getItem(Item i) {
         for (ItemCollection ic: items) {
-            if (ic.item.equals(i)) {
+            if (ic.getItem().equals(i)) {
                 return ic;
             }
         }
@@ -87,9 +107,10 @@ public class Player {
     //EFFECTS: reset money, items, and upgrades, but add accumulated prestige points
     public void prestigePlayer() {
         money = 1;
+        prestige = +prestigeToBeGained;
         upgrades.clear();
         items.clear();
-        prestige = +prestigeToBeGained;
+        prestigeToBeGained = 0;
     }
 
 
