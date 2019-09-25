@@ -5,21 +5,16 @@ import model.*;
 import java.util.Scanner;
 
 public class Game {
+    public Player player;
 
     public Game() {
-        Player player = new Player();
+        player = new Player(60);
+    }
 
+    public void initialize() {
         Item basicClicker = new Item("Basic Clicker", 10, 0.1);
-
-
         Upgrade firstClick = new Upgrade("First Clicker", 10, 1.2, basicClicker);
         Upgrade upgradedClicker = new Upgrade("Upgraded Clicker", 50, 1.5, basicClicker);
-
-        startGame(player);
-        player.purchaseUpgrade(firstClick);
-        player.purchaseUpgrade(upgradedClicker);
-
-        player.showUpgrades();
     }
 
     public void startGame(Player player) {
@@ -33,6 +28,8 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        new Game();
+        Game game  = new Game();
+        game.initialize();
+        game.startGame(game.player);
     }
 }
