@@ -2,15 +2,10 @@ package ui;
 
 
 import java.io.*;
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import model.*;
 import java.util.*;
 
-public class Game extends Application implements Savable, Loadable {
+public class Game implements Savable, Loadable {
     public Player player;
     private Timer gameTimer;
     private TimerTask timerTask;
@@ -90,15 +85,6 @@ public class Game extends Application implements Savable, Loadable {
         return player.getMoney();
     }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("window.fxml"));
-        primaryStage.setTitle("Idle Programmer");
-        Scene scene = new Scene(root, 500, 300);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
     public static void main(String[] args) {
         Game game  = new Game();
         Timer timer = game.gameTimer;
@@ -106,6 +92,5 @@ public class Game extends Application implements Savable, Loadable {
         game.initialize();
         game.player.purchaseItem(game.intern, 3);
         timer.schedule(timerTask, 0, 1000);
-        launch(args);
     }
 }
