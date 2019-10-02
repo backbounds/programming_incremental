@@ -29,7 +29,6 @@ public class Game extends Application implements Savable, Loadable {
             @Override
             public void run() {
                 calculateMoney(player);
-                System.out.println(player.getMoney());
             }
         };
     }
@@ -41,7 +40,7 @@ public class Game extends Application implements Savable, Loadable {
         ObjectOutputStream saved = new ObjectOutputStream(saveFile);
         saved.writeObject(player);
         saved.close();
-        System.out.println("Saved game.");
+        System.out.println("Saved player with " + player.getMoney() + " dollars.");
     }
 
 
@@ -87,6 +86,7 @@ public class Game extends Application implements Savable, Loadable {
         money += totalIncome;
         money = Math.round(money * 100d) / 100d;
         player.setMoney(money);
+        System.out.println(player.getMoney());
         return player.getMoney();
     }
 

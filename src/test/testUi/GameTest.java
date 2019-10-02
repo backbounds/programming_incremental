@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class GameTest {
     }
 
     @Test
-    public void saveTest() throws IOException, ClassNotFoundException {
+    public void saveTest() throws IOException {
         Game game = new Game();
         game.player = new Player(100);
         game.player.setMoney(150);
@@ -38,7 +40,13 @@ public class GameTest {
         game.player.purchaseUpgrade(cheapUpgrade);
         game.player.purchaseUpgrade(expensiveUpgrade);
         game.save();
-        game.player = new Player(50);
+        assertTrue(Files.exists(Paths.get("saveFile.sav")));
+    }
+
+    @Test
+    public void loadTest() throws IOException, ClassNotFoundException {
+        Game game = new Game();
+        assertTrue(Files.exists(Paths.get("saveFile.sav")));
         game.load();
         assertEquals(40, game.player.getMoney());
         assertEquals(5, game.player.getItemNumber(cheapItem));
