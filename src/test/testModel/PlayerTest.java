@@ -1,9 +1,11 @@
-package testUi;
+package testModel;
 
-import ui.*;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,14 +18,15 @@ public class PlayerTest {
     Item expensiveItem;
     Upgrade cheapUpgrade;
     Upgrade expensiveUpgrade;
+    List<Upgrade> upgrades = new ArrayList<>();
 
     @BeforeEach
-    void PlayerTest(){
+    void setup(){
         p = new Player(100);
-        cheapItem = new Item("Cheap Item", 10, 1);
-        expensiveItem = new Item("Expensive Item", 100, 1);
-        cheapUpgrade = new Upgrade("Cheap Upgrade", 10, 1.1, cheapItem);
-        expensiveUpgrade = new Upgrade("Expensive Upgrade", 100, 1.1, expensiveItem);
+        cheapItem = new Item("Cheap Item", 10, 1, upgrades);
+        expensiveItem = new Item("Expensive Item", 100, 1, upgrades);
+        cheapUpgrade = new Upgrade("Cheap Upgrade", 10, 1.1);
+        expensiveUpgrade = new Upgrade("Expensive Upgrade", 100, 1.1);
 
     }
 

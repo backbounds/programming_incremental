@@ -1,17 +1,21 @@
 package model;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable {
     private String name;
-    private int money;
+    private String companyName;
+    private double money;
     private int prestigeToBeGained;
     private int prestige;
     private List<Upgrade> upgrades = new ArrayList<>();
     private List<ItemCollection> items = new ArrayList<>();
 
+
+    //EFFECTS: creates a player
     public Player(int money) {
         this.money = money;
     }
@@ -24,22 +28,36 @@ public class Player {
     }
 
     //EFFECTS: returns money
-    public int getMoney() {
+    public double getMoney() {
         return money;
     }
 
+
+    //EFFECTS: return company name
+    public String getCompanyName() {
+        return companyName;
+    }
+
+
+    //EFFECTS: returns prestige level
     public int getPrestige() {
         return prestige;
     }
 
+
+    //EFFECTS: returns potential prestige
     public int getPrestigeToBeGained() {
         return prestigeToBeGained;
     }
 
+
+    //EFFECTS: returns the list of items the player has
     public List<ItemCollection> getItems() {
         return items;
     }
 
+
+    //EFFECTS: returns the list of upgrades the player has
     public List<Upgrade> getUpgrades() {
         return upgrades;
     }
@@ -53,7 +71,7 @@ public class Player {
 
 
     //EFFECTS: sets money
-    public void setMoney(int money) {
+    public void setMoney(double money) {
         this.money = money;
     }
 
@@ -62,19 +80,32 @@ public class Player {
         this.prestigeToBeGained = prestigeToBeGained;
     }
 
+
+    //EFFECTS: sets the company name
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
     //helpers
 
 
     //EFFECTS: returns true if player has the upgrade, false otherwise
     public boolean upgradesContain(Upgrade u) {
-        return upgrades.contains(u);
+        String name = u.name;
+        for (Upgrade upgrade: upgrades) {
+            if (upgrade.name.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
     //EFFECTS: returns true if player has the item, false otherwise
     public boolean itemsContain(Item i) {
+        String name = i.name;
         for (ItemCollection ic: items) {
-            if (ic.getItem().equals(i)) {
+            if (ic.getItem().name.equals(name)) {
                 return true;
             }
         }
@@ -84,8 +115,9 @@ public class Player {
 
     //EFFECTS: returns the number of the particular item the player has
     public int getItemNumber(Item i) {
+        String name = i.name;
         for (ItemCollection ic: items) {
-            if (ic.getItem().equals(i)) {
+            if (ic.getItem().name.equals(name)) {
                 return ic.getNumber();
             }
         }
@@ -95,8 +127,9 @@ public class Player {
 
     //EFFECTS: gets a specific item from the player's items
     public ItemCollection getItem(Item i) {
+        String name = i.name;
         for (ItemCollection ic: items) {
-            if (ic.getItem().equals(i)) {
+            if (ic.getItem().name.equals(name)) {
                 return ic;
             }
         }
@@ -120,33 +153,20 @@ public class Player {
         if (money >= u.cost) {
             upgrades.add(u);
             money -= u.cost;
-            u.item.applyUpgrade(u);
             System.out.println("You have purchased the upgrade " + u.name + "! You have " + money + " dollars left.");
         } else {
             System.out.println("You need to have " + u.cost + " dollars, but you have " + money + ".");
         }
     }
 
-
-    //EFFECTS : lists all upgrades the player has
-    public void showUpgrades() {
-        if (upgrades.isEmpty()) {
-            System.out.println("You don't have any upgrades!");
-        } else {
-            System.out.println("Here are your upgrades:");
-            for (Upgrade u : upgrades) {
-                System.out.println(u.name);
-            }
-        }
-    }
-
     //MODIFIES : this
     //EFFECTS : adds the item to the player if the player has enough money
     public void purchaseItem(Item i, int purchaseAmount) {
-        if (money >= i.cost * purchaseAmount) {
+        if (money >= i.getCost() * purchaseAmount) {
             addItem(i, purchaseAmount);
+            money -= i.getCost() * purchaseAmount;
         } else {
-            System.out.println("You need to have " + i.cost * purchaseAmount
+            System.out.println("You need to have " + i.getCost() * purchaseAmount
                     + " dollars, but you have " + money  + ".");
         }
     }
@@ -161,7 +181,6 @@ public class Player {
         } else {
             ItemCollection purchasedItem = new ItemCollection(i, amount);
             items.add(purchasedItem);
-            money -= i.cost * amount;
             System.out.println("You have purchased " + amount + " of the item " + i.name
                     + "! You have " + money + " dollars left.");
         }
