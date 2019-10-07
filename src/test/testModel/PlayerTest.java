@@ -1,5 +1,6 @@
 package testModel;
 
+import exceptions.UpgradeAlreadyExists;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,11 +32,11 @@ public class PlayerTest {
     }
 
     @Test
-    public void purchaseTest(){
+    public void purchaseTest() throws UpgradeAlreadyExists {
         p.purchaseItem(cheapItem, 1);
-        p.purchaseUpgrade(cheapUpgrade);
+        p.purchaseUpgrade(cheapItem, cheapUpgrade);
         p.purchaseItem(expensiveItem, 1);
-        p.purchaseUpgrade(expensiveUpgrade);
+        p.purchaseUpgrade(cheapItem, cheapUpgrade);
 
         assertTrue(p.itemsContain(cheapItem));
         assertTrue(p.upgradesContain(cheapUpgrade));
@@ -55,11 +56,11 @@ public class PlayerTest {
     }
 
     @Test
-    public void prestigePlayer(){
+    public void prestigePlayer() throws UpgradeAlreadyExists {
         p.setMoney(150);
         p.setPrestigeToBeGained(20);
         p.addItem(cheapItem, 6);
-        p.purchaseUpgrade(cheapUpgrade);
+        p.purchaseUpgrade(cheapItem, cheapUpgrade);
 
         assertTrue(p.itemsContain(cheapItem));
         assertEquals(6, p.getItem(cheapItem).getNumber());

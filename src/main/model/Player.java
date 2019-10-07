@@ -1,6 +1,8 @@
 package model;
 
 
+import exceptions.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,8 +156,13 @@ public class Player implements Serializable {
 
     //MODIFIES : this
     //EFFECTS : adds the upgrade to the player if the player has enough money
-    public void purchaseUpgrade(Upgrade u) {
+    public void purchaseUpgrade(Item i, Upgrade u) throws UpgradeAlreadyExists {
         if (money >= u.cost) {
+            if (i.purchasedUpgrades.contains(u)) {
+                throw new UpgradeAlreadyExists();
+            }
+            i.purchasedUpgrades.add(u);
+            i.addUpgrade(u);
             upgrades.add(u);
             money -= u.cost;
             roundMoney();

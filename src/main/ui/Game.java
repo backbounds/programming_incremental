@@ -2,6 +2,8 @@ package ui;
 
 
 import java.io.*;
+
+import exceptions.*;
 import model.*;
 
 import java.nio.file.Files;
@@ -64,8 +66,22 @@ public class Game implements Savable, Loadable {
     }
 
     //EFFECTS: returns true if a save file exists, false otherwise
-    private Boolean saveExists() {
+    public Boolean saveExists() {
         return Files.exists(Paths.get("savefile.sav"));
+    }
+
+    public void handleSave() {
+        if (saveExists()) {
+            System.out.println("You already have an existing save file. Press [1] to load, [2] to start a new game.");
+            Scanner input = new Scanner(System.in);
+            if (input.nextInt() == 1) {
+                try {
+                    load();
+                } catch (IOException | ClassNotFoundException ice) {
+                    System.out.println("Unable to load save file, creating new game.");
+                }
+            }
+        }
     }
 
     //EFFECTS: terminates the process
@@ -127,7 +143,7 @@ public class Game implements Savable, Loadable {
                 quit();
                 break;
             default:
-                System.out.println("Unexpected input! Please try again");
+                System.out.println("Unexpected input! Please try again.");
                 break;
         }
     }
@@ -142,9 +158,20 @@ public class Game implements Savable, Loadable {
                         + "Income: " + item.getIncome());
             }
         }
+        try {
+            handlePurchaseInput();
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Item doesn't exist!");
+        }
+    }
+
+    public void handlePurchaseInput() {
         Scanner input = new Scanner(System.in);
         int answer = input.nextInt();
         if (answer % 2 == 0) {
+            if ((answer / 2 - 1) > allItems.size()) {
+                throw new IndexOutOfBoundsException();
+            }
             Item item = allItems.get(answer / 2 - 1);
             item.listUpgrades();
             purchaseUpgradeDialogue(answer - 1, item);
@@ -164,29 +191,28 @@ public class Game implements Savable, Loadable {
         Scanner input = new Scanner(System.in);
         int answer = input.nextInt();
         List<Upgrade> upgrades = item.getApplicableUpgrades();
-        if (answer > 0 && answer <= upgrades.size()) {
-            player.purchaseUpgrade(upgrades.get(answer - 1));
+        if (answer > 0) {
+            try {
+                player.purchaseUpgrade(item, upgrades.get(answer - 1));
+            } catch (UpgradeAlreadyExists upgradeAlreadyExists) {
+                System.out.println("You already have this item!");
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Upgrade doesn't exist!");
+            }
         }
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Game game  = new Game();
-        if (game.saveExists()) {
-            System.out.println("You already have an existing save file. Press [1] to load, [2] to start a new game.");
-            Scanner input = new Scanner(System.in);
-            if (input.nextInt() == 1) {
-                try {
-                    game.load();
-                } catch (InvalidClassException ice) {
-                    System.out.println("Unable to load save file, creating new game.");
-                }
-            }
-        }
-        Timer timer = game.gameTimer;
-        TimerTask timerTask = game.timerTask;
-        timer.schedule(timerTask, 0, 1000);
+        game.handleSave();
+        game.gameTimer.schedule(game.timerTask, 0, 1000);
         while (true) {
-            game.input();
+            try {
+                game.input();
+            } catch (InputMismatchException e) {
+                System.out.println("Unexpected input!");
+                game.input();
+            }
         }
     }
 }
