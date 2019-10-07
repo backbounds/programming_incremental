@@ -89,6 +89,11 @@ public class Player implements Serializable {
     //helpers
 
 
+    //EFFECTS: rounds the player's money
+    public void roundMoney() {
+        money = Math.round(money * 100d) / 100d;
+    }
+
     //EFFECTS: returns true if player has the upgrade, false otherwise
     public boolean upgradesContain(Upgrade u) {
         String name = u.name;
@@ -153,6 +158,7 @@ public class Player implements Serializable {
         if (money >= u.cost) {
             upgrades.add(u);
             money -= u.cost;
+            roundMoney();
             System.out.println("You have purchased the upgrade " + u.name + "! You have " + money + " dollars left.");
         } else {
             System.out.println("You need to have " + u.cost + " dollars, but you have " + money + ".");
@@ -164,7 +170,6 @@ public class Player implements Serializable {
     public void purchaseItem(Item i, int purchaseAmount) {
         if (money >= i.getCost() * purchaseAmount) {
             addItem(i, purchaseAmount);
-            money -= i.getCost() * purchaseAmount;
         } else {
             System.out.println("You need to have " + i.getCost() * purchaseAmount
                     + " dollars, but you have " + money  + ".");
@@ -178,11 +183,16 @@ public class Player implements Serializable {
     public void addItem(Item i, int amount) {
         if (getItem(i) != null) {
             getItem(i).addNumber(amount);
+            money -= i.getCost() * amount;
+            System.out.println("You bought " + amount + " more of the item " + i.name + "! "
+                    + "You have " + money + " dollars left.");
         } else {
             ItemCollection purchasedItem = new ItemCollection(i, amount);
             items.add(purchasedItem);
-            System.out.println("You have purchased " + amount + " of the item " + i.name
-                    + "! You have " + money + " dollars left.");
+            money -= i.getCost() * amount;
+            System.out.println(String.format("You have purchased %s more of the item %s! You have %s dollars left.",
+                    amount, i.name, money));
         }
+        roundMoney();
     }
 }

@@ -3,12 +3,16 @@ package ui;
 
 import java.io.*;
 import model.*;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Game implements Savable, Loadable {
     public Player player;
     private Timer gameTimer;
     private TimerTask timerTask;
+    List<Item> allItems;
     Item intern;
     Upgrade coffee;
     Upgrade exposure;
@@ -19,13 +23,21 @@ public class Game implements Savable, Loadable {
     //EFFECTS: creates a new game and instantiates a player
     public Game() {
         player = new Player(60);
+        allItems = new ArrayList<>();
         gameTimer = new Timer();
         timerTask = new TimerTask() {
+            private Boolean isRunning = true;
+            public Boolean getRunning() {
+                return isRunning;
+            }
+
             @Override
             public void run() {
+
                 calculateMoney(player);
             }
         };
+        initialize();
     }
 
     //EFFECTS: saves the game
@@ -51,6 +63,11 @@ public class Game implements Savable, Loadable {
         System.out.println("Loaded player with " + player.getMoney() + " dollars.");
     }
 
+    //EFFECTS: returns true if a save file exists, false otherwise
+    private Boolean saveExists() {
+        return Files.exists(Paths.get("savefile.sav"));
+    }
+
     //EFFECTS: terminates the process
     public void quit() {
         System.exit(0);
@@ -69,6 +86,7 @@ public class Game implements Savable, Loadable {
         internUpgrades.add(adderall);
         internUpgrades.add(money);
         intern = new Item("Intern", 10, 0.1, internUpgrades);
+        allItems.add(intern);
     }
 
     private double calculateMoney(Player player) {
@@ -79,18 +97,96 @@ public class Game implements Savable, Loadable {
             totalIncome += ic.getItem().getIncome() * ic.getNumber();
         }
         money += totalIncome;
-        money = Math.round(money * 100d) / 100d;
         player.setMoney(money);
-        System.out.println(player.getMoney());
+        player.roundMoney();
         return player.getMoney();
     }
 
-    public static void main(String[] args) {
+    public void input() throws IOException {
+        System.out.println("List of inputs: \n"
+                         + "[1] to check your money \n"
+                         + "[2] to buy items or upgrades \n"
+                         + "[3] to save your game \n"
+                         + "[4] to quit");
+        Scanner input = new Scanner(System.in);
+        handleInput(input.nextInt());
+    }
+
+    public void handleInput(int input) throws IOException {
+        switch (input) {
+            case 1:
+                System.out.println(player.getMoney());
+                break;
+            case 2:
+                listItems();
+                break;
+            case 3:
+                save();
+                break;
+            case 4:
+                quit();
+                break;
+            default:
+                System.out.println("Unexpected input! Please try again");
+                break;
+        }
+    }
+
+    public void listItems() {
+        int i = 1;
+        System.out.println("Press [q] to exit");
+        for (Item item: allItems) {
+            if (player.getMoney() > item.getCost()) {
+                System.out.println(item.name + ": Press [" + i + "] to buy or [" + (i + 1) + "] to see upgrades" + "\n"
+                        + "Cost: " + item.getCost() + "\n"
+                        + "Income: " + item.getIncome());
+            }
+        }
+        Scanner input = new Scanner(System.in);
+        int answer = input.nextInt();
+        if (answer % 2 == 0) {
+            Item item = allItems.get(answer / 2 - 1);
+            item.listUpgrades();
+            purchaseUpgradeDialogue(answer - 1, item);
+        } else {
+            purchaseItemDialogue(answer - 1);
+        }
+    }
+
+    public void purchaseItemDialogue(int i) {
+        Item item = allItems.get(i);
+        System.out.println("How many of " + item.name + " would you like to purchase?");
+        Scanner input = new Scanner(System.in);
+        player.purchaseItem(item, input.nextInt());
+    }
+
+    public void purchaseUpgradeDialogue(int i, Item item) {
+        Scanner input = new Scanner(System.in);
+        int answer = input.nextInt();
+        List<Upgrade> upgrades = item.getApplicableUpgrades();
+        if (answer > 0 && answer <= upgrades.size()) {
+            player.purchaseUpgrade(upgrades.get(answer - 1));
+        }
+    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         Game game  = new Game();
+        if (game.saveExists()) {
+            System.out.println("You already have an existing save file. Press [1] to load, [2] to start a new game.");
+            Scanner input = new Scanner(System.in);
+            if (input.nextInt() == 1) {
+                try {
+                    game.load();
+                } catch (InvalidClassException ice) {
+                    System.out.println("Unable to load save file, creating new game.");
+                }
+            }
+        }
         Timer timer = game.gameTimer;
         TimerTask timerTask = game.timerTask;
-        game.initialize();
-        game.player.purchaseItem(game.intern, 3);
         timer.schedule(timerTask, 0, 1000);
+        while (true) {
+            game.input();
+        }
     }
 }

@@ -7,8 +7,8 @@ public class Item implements Serializable {
     public String name;
     private int cost;
     private double income;
-    List<Upgrade> applicableUpgrades;
-    List<Upgrade> purchasedUpgrades;
+    private List<Upgrade> applicableUpgrades;
+    public List<Upgrade> purchasedUpgrades;
 
 
     //EFFECTS: creates an item
@@ -29,11 +29,27 @@ public class Item implements Serializable {
         return cost;
     }
 
+    //EFFECTS: returns applicable upgrades to an item
+    public List<Upgrade> getApplicableUpgrades() {
+        return applicableUpgrades;
+    }
+
     //REQUIRES: upgrade is in applicableUpgrades
     //MODIFIES: this
     //EFFECTS: adds the upgrade to the item
     public void addUpgrade(Upgrade u) {
         purchasedUpgrades.add(u);
         income = u.applyUpgrade(income);
+    }
+
+    //EFFECTS: lists upgrades that belong to this item
+    public void listUpgrades() {
+        int i = 1;
+        for (Upgrade upgrade: applicableUpgrades) {
+            System.out.println(String.format("Upgrade name: %s \n Upgrade description: %s \n "
+                    + "Upgrade cost: %s \n Upgrade effect %s \n [%s] to buy or [0] to go back",
+                    upgrade.name, upgrade.description, upgrade.cost, upgrade.effect, i));
+            i++;
+        }
     }
 }
