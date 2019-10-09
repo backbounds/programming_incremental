@@ -1,23 +1,18 @@
 package model;
 
-import java.io.Serializable;
 
-public class Upgrade implements Serializable {
-    public String name;
-    public int cost;
-    double effect;
-    public String description;
+public class Upgrade extends Purchasable {
 
     //EFFECTS: creates an upgrade object
     public Upgrade(String name, int cost, double effect) {
-        this.name = name;
-        this.cost = cost;
-        this.effect = effect;
+        super(name, cost, effect);
     }
 
     //EFFECTS: applies the upgrade to double
     public double applyUpgrade(double d) {
-        return (d * effect);
+        double newIncome = d * getIncome();
+        newIncome = Math.round(newIncome * 100d) / 100d;
+        return newIncome;
     }
 
 

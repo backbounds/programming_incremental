@@ -20,7 +20,6 @@ public class Game implements Savable, Loadable {
     Upgrade exposure;
     Upgrade adderall;
     Upgrade money;
-    List<Upgrade> internUpgrades;
 
     //EFFECTS: creates a new game and instantiates a player
     public Game() {
@@ -29,6 +28,7 @@ public class Game implements Savable, Loadable {
         gameTimer = new Timer();
         timerTask = new TimerTask() {
             private Boolean isRunning = true;
+
             public Boolean getRunning() {
                 return isRunning;
             }
@@ -67,7 +67,7 @@ public class Game implements Savable, Loadable {
 
     //EFFECTS: returns true if a save file exists, false otherwise
     public Boolean saveExists() {
-        return Files.exists(Paths.get("savefile.sav"));
+        return Files.exists(Paths.get("saveFile.sav"));
     }
 
     public void handleSave() {
@@ -96,7 +96,7 @@ public class Game implements Savable, Loadable {
         exposure = new Upgrade("Exposure", 50, 1.5);
         adderall = new Upgrade("Adderall", 500, 2);
         money = new Upgrade("Money", 2000, 5);
-        internUpgrades = new ArrayList<>();
+        List<Upgrade> internUpgrades = new ArrayList<>();
         internUpgrades.add(coffee);
         internUpgrades.add(exposure);
         internUpgrades.add(adderall);
@@ -107,10 +107,9 @@ public class Game implements Savable, Loadable {
 
     private double calculateMoney(Player player) {
         double money = player.getMoney();
-        List<ItemCollection> itemsToCalculate = player.getItems();
         double totalIncome = 0;
-        for (ItemCollection ic: itemsToCalculate) {
-            totalIncome += ic.getItem().getIncome() * ic.getNumber();
+        for (Item item : player.getItems()) {
+            totalIncome += player.getItemMap().get(item) * item.getIncome();
         }
         money += totalIncome;
         player.setMoney(money);
@@ -120,10 +119,10 @@ public class Game implements Savable, Loadable {
 
     public void input() throws IOException {
         System.out.println("List of inputs: \n"
-                         + "[1] to check your money \n"
-                         + "[2] to buy items or upgrades \n"
-                         + "[3] to save your game \n"
-                         + "[4] to quit");
+                + "[1] to check your money \n"
+                + "[2] to buy items or upgrades \n"
+                + "[3] to save your game \n"
+                + "[4] to quit");
         Scanner input = new Scanner(System.in);
         handleInput(input.nextInt());
     }
@@ -151,11 +150,10 @@ public class Game implements Savable, Loadable {
     public void listItems() {
         int i = 1;
         System.out.println("Press [q] to exit");
-        for (Item item: allItems) {
+        for (Item item : allItems) {
             if (player.getMoney() > item.getCost()) {
-                System.out.println(item.name + ": Press [" + i + "] to buy or [" + (i + 1) + "] to see upgrades" + "\n"
-                        + "Cost: " + item.getCost() + "\n"
-                        + "Income: " + item.getIncome());
+                System.out.println(String.format("%s:\n\tCost: %s\n\tIncome:%s\nPress %s to buy or %s to see upgrades",
+                        item.getName(), item.getCost(), item.getIncome(), i, i + 1));
             }
         }
         try {
@@ -173,27 +171,38 @@ public class Game implements Savable, Loadable {
                 throw new IndexOutOfBoundsException();
             }
             Item item = allItems.get(answer / 2 - 1);
-            item.listUpgrades();
+            listUpgrades(item);
             purchaseUpgradeDialogue(answer - 1, item);
         } else {
             purchaseItemDialogue(answer - 1);
         }
     }
 
+    public void listUpgrades(Item item) {
+        int i = 1;
+        for (Upgrade upgrade : item.applicableUpgrades) {
+            if (!item.purchasedUpgrades.contains(upgrade)) {
+                System.out.println(String.format("Name: %s \n Cost: %s \n Effect %s \n [%s] to buy or [0] to go back\n",
+                        upgrade.getName(), upgrade.getCost(), upgrade.getIncome(), i));
+                i++;
+            }
+        }
+    }
+
     public void purchaseItemDialogue(int i) {
         Item item = allItems.get(i);
-        System.out.println("How many of " + item.name + " would you like to purchase?");
+        System.out.println(String.format("How many of %s would you like to purchase?", item.getName()));
         Scanner input = new Scanner(System.in);
-        player.purchaseItem(item, input.nextInt());
+        player.purchase(item, input.nextInt());
     }
 
     public void purchaseUpgradeDialogue(int i, Item item) {
         Scanner input = new Scanner(System.in);
         int answer = input.nextInt();
-        List<Upgrade> upgrades = item.getApplicableUpgrades();
+        List<Upgrade> upgrades = item.applicableUpgrades;
         if (answer > 0) {
             try {
-                player.purchaseUpgrade(item, upgrades.get(answer - 1));
+                player.purchase(item, upgrades.get(answer - 1));
             } catch (UpgradeAlreadyExists upgradeAlreadyExists) {
                 System.out.println("You already have this item!");
             } catch (IndexOutOfBoundsException e) {
@@ -202,8 +211,8 @@ public class Game implements Savable, Loadable {
         }
     }
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-        Game game  = new Game();
+    public static void main(String[] args) throws IOException {
+        Game game = new Game();
         game.handleSave();
         game.gameTimer.schedule(game.timerTask, 0, 1000);
         while (true) {

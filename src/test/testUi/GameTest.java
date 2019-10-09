@@ -36,10 +36,9 @@ public class GameTest {
     public void saveTest() throws IOException, UpgradeAlreadyExists {
         Game game = new Game();
         game.player = new Player(100);
-        game.player.setMoney(150);
-        game.player.addItem(cheapItem, 5);
-        game.player.purchaseUpgrade(cheapItem, cheapUpgrade);
-        game.player.purchaseUpgrade(expensiveItem, expensiveUpgrade);
+        game.player.purchase(cheapItem, 5);
+        game.player.purchase(cheapItem, cheapUpgrade);
+        game.player.purchase(expensiveItem, expensiveUpgrade);
         game.save();
         assertTrue(Files.exists(Paths.get("saveFile.sav")));
     }
@@ -49,7 +48,7 @@ public class GameTest {
         Game game = new Game();
         assertTrue(Files.exists(Paths.get("saveFile.sav")));
         game.load();
-        assertEquals(90, game.player.getMoney());
+        assertEquals(40, game.player.getMoney());
         assertEquals(5, game.player.getItemNumber(cheapItem));
         assertTrue(game.player.upgradesContain(cheapUpgrade));
         assertFalse(game.player.upgradesContain(expensiveUpgrade));

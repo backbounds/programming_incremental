@@ -1,11 +1,10 @@
 package model;
 
 
-import exceptions.*;
+import exceptions.UpgradeAlreadyExists;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Player implements Serializable {
     private String name;
@@ -14,7 +13,7 @@ public class Player implements Serializable {
     private int prestigeToBeGained;
     private int prestige;
     private List<Upgrade> upgrades = new ArrayList<>();
-    private List<ItemCollection> items = new ArrayList<>();
+    private HashMap<Item, Integer> items = new HashMap<>();
 
 
     //EFFECTS: creates a player
@@ -54,7 +53,12 @@ public class Player implements Serializable {
 
 
     //EFFECTS: returns the list of items the player has
-    public List<ItemCollection> getItems() {
+    public Set<Item> getItems() {
+        return items.keySet();
+    }
+
+    //EFFECTS: returns the map of player items
+    public Map<Item, Integer> getItemMap() {
         return items;
     }
 
@@ -90,6 +94,27 @@ public class Player implements Serializable {
 
     //helpers
 
+    //EFFECTS: returns true if a player has an item, false otherwise
+    public Boolean itemsContain(Item item) {
+        String name = item.getName();
+        for (Item i: items.keySet()) {
+            if (i.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //EFFECTS: returns the number of an item a player has
+    public int getItemNumber(Item item) {
+        String name = item.getName();
+        for (Item i: items.keySet()) {
+            if (i.getName().equals(name)) {
+                return items.get(i);
+            }
+        }
+        return 0;
+    }
 
     //EFFECTS: rounds the player's money
     public void roundMoney() {
@@ -98,49 +123,13 @@ public class Player implements Serializable {
 
     //EFFECTS: returns true if player has the upgrade, false otherwise
     public boolean upgradesContain(Upgrade u) {
-        String name = u.name;
-        for (Upgrade upgrade: upgrades) {
-            if (upgrade.name.equals(name)) {
+        String name = u.getName();
+        for (Upgrade upgrade : upgrades) {
+            if (upgrade.getName().equals(name)) {
                 return true;
             }
         }
         return false;
-    }
-
-
-    //EFFECTS: returns true if player has the item, false otherwise
-    public boolean itemsContain(Item i) {
-        String name = i.name;
-        for (ItemCollection ic: items) {
-            if (ic.getItem().name.equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    //EFFECTS: returns the number of the particular item the player has
-    public int getItemNumber(Item i) {
-        String name = i.name;
-        for (ItemCollection ic: items) {
-            if (ic.getItem().name.equals(name)) {
-                return ic.getNumber();
-            }
-        }
-        return 0;
-    }
-
-
-    //EFFECTS: gets a specific item from the player's items
-    public ItemCollection getItem(Item i) {
-        String name = i.name;
-        for (ItemCollection ic: items) {
-            if (ic.getItem().name.equals(name)) {
-                return ic;
-            }
-        }
-        return null;
     }
 
     //MODIFIES : this
@@ -156,50 +145,42 @@ public class Player implements Serializable {
 
     //MODIFIES : this
     //EFFECTS : adds the upgrade to the player if the player has enough money
-    public void purchaseUpgrade(Item i, Upgrade u) throws UpgradeAlreadyExists {
-        if (money >= u.cost) {
+    public void purchase(Item i, Upgrade u) throws UpgradeAlreadyExists {
+        if (money >= u.getCost()) {
             if (i.purchasedUpgrades.contains(u)) {
                 throw new UpgradeAlreadyExists();
             }
             i.purchasedUpgrades.add(u);
             i.addUpgrade(u);
             upgrades.add(u);
-            money -= u.cost;
+            money -= u.getCost();
             roundMoney();
-            System.out.println("You have purchased the upgrade " + u.name + "! You have " + money + " dollars left.");
+            System.out.println(String.format("You have purchased the upgrade %s! You have %s dollars left.",
+                    u.getName(), money));
         } else {
-            System.out.println("You need to have " + u.cost + " dollars, but you have " + money + ".");
+            System.out.println(String.format("You need to have %s dollars, but you have %s.",
+                    u.getCost(), money));
         }
     }
 
     //MODIFIES : this
     //EFFECTS : adds the item to the player if the player has enough money
-    public void purchaseItem(Item i, int purchaseAmount) {
+    public void purchase(Item i, int purchaseAmount) {
         if (money >= i.getCost() * purchaseAmount) {
-            addItem(i, purchaseAmount);
+            if (items.containsKey(i)) {
+                items.replace(i, items.get(i) + purchaseAmount);
+                System.out.println(String.format("You have purchased %s more of the item %s! You have %s dollars left",
+                        purchaseAmount, i.getName(), money));
+            } else {
+                items.put(i, purchaseAmount);
+                System.out.println(String.format("You have purchased %s of the item %s! You have %s dollars left",
+                        purchaseAmount, i.getName(), money - i.getCost() * purchaseAmount));
+            }
+            money -= i.getCost() * purchaseAmount;
+            roundMoney();
         } else {
-            System.out.println("You need to have " + i.getCost() * purchaseAmount
-                    + " dollars, but you have " + money  + ".");
+            System.out.println(String.format("You need to have %s dollars, but you have %s.",
+                    i.getCost() * purchaseAmount, money));
         }
-    }
-
-
-    //REQUIRES: amount is positive
-    //MODIFIES: this
-    //EFFECTS: adds an amount of item to the player
-    public void addItem(Item i, int amount) {
-        if (getItem(i) != null) {
-            getItem(i).addNumber(amount);
-            money -= i.getCost() * amount;
-            System.out.println("You bought " + amount + " more of the item " + i.name + "! "
-                    + "You have " + money + " dollars left.");
-        } else {
-            ItemCollection purchasedItem = new ItemCollection(i, amount);
-            items.add(purchasedItem);
-            money -= i.getCost() * amount;
-            System.out.println(String.format("You have purchased %s more of the item %s! You have %s dollars left.",
-                    amount, i.name, money));
-        }
-        roundMoney();
     }
 }

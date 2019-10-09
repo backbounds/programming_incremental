@@ -7,14 +7,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerTest {
 
-    Player p;
+    Player testPlayer;
     Item cheapItem;
     Item expensiveItem;
     Upgrade cheapUpgrade;
@@ -23,7 +22,7 @@ public class PlayerTest {
 
     @BeforeEach
     void setup(){
-        p = new Player(100);
+        testPlayer = new Player(100);
         cheapItem = new Item("Cheap Item", 10, 1, upgrades);
         expensiveItem = new Item("Expensive Item", 100, 1, upgrades);
         cheapUpgrade = new Upgrade("Cheap Upgrade", 10, 1.1);
@@ -33,47 +32,76 @@ public class PlayerTest {
 
     @Test
     public void purchaseTest() throws UpgradeAlreadyExists {
-        p.purchaseItem(cheapItem, 1);
-        p.purchaseUpgrade(cheapItem, cheapUpgrade);
-        p.purchaseItem(expensiveItem, 1);
-        p.purchaseUpgrade(cheapItem, cheapUpgrade);
+        testPlayer.purchase(cheapItem, 1);
+        testPlayer.purchase(cheapItem, cheapUpgrade);
+        testPlayer.purchase(expensiveItem, 1);
 
-        assertTrue(p.itemsContain(cheapItem));
-        assertTrue(p.upgradesContain(cheapUpgrade));
-        assertFalse(p.itemsContain(expensiveItem));
-        assertFalse(p.upgradesContain(expensiveUpgrade));
+        assertTrue(testPlayer.itemsContain(cheapItem));
+        assertTrue(testPlayer.upgradesContain(cheapUpgrade));
+        assertFalse(testPlayer.itemsContain(expensiveItem));
+        assertFalse(testPlayer.upgradesContain(expensiveUpgrade));
     }
 
     @Test
     public void purchaseBulkTest(){
-        p.purchaseItem(expensiveItem, 5);
-        p.purchaseItem(cheapItem, 5);
-        p.purchaseItem(cheapItem, 10);
+        testPlayer.purchase(expensiveItem, 5);
+        testPlayer.purchase(cheapItem, 5);
+        testPlayer.purchase(cheapItem, 3);
+        testPlayer.purchase(cheapItem, 10);
 
-        assertFalse(p.itemsContain(expensiveItem));
-        assertTrue(p.itemsContain(cheapItem));
-        assertEquals(5, p.getItemNumber(cheapItem));
+        assertFalse(testPlayer.itemsContain(expensiveItem));
+        assertTrue(testPlayer.itemsContain(cheapItem));
+        assertEquals(8, testPlayer.getItemNumber(cheapItem));
+        assertEquals(0, testPlayer.getItemNumber(expensiveItem));
+    }
+
+    @Test
+    public void exceptionTest() throws UpgradeAlreadyExists {
+        testPlayer.purchase(cheapItem, cheapUpgrade);
+        try {
+            testPlayer.purchase(cheapItem, cheapUpgrade);
+            fail();
+        } catch (UpgradeAlreadyExists e) {
+
+        }
     }
 
     @Test
     public void prestigePlayer() throws UpgradeAlreadyExists {
-        p.setMoney(150);
-        p.setPrestigeToBeGained(20);
-        p.addItem(cheapItem, 6);
-        p.purchaseUpgrade(cheapItem, cheapUpgrade);
+        testPlayer.setMoney(150);
+        testPlayer.setPrestigeToBeGained(20);
+        addItemToPlayer(cheapItem, 6);
+        testPlayer.purchase(cheapItem, cheapUpgrade);
 
-        assertTrue(p.itemsContain(cheapItem));
-        assertEquals(6, p.getItem(cheapItem).getNumber());
-        assertTrue(p.upgradesContain(cheapUpgrade));
-        assertEquals(0, p.getPrestige());
+        assertTrue(testPlayer.itemsContain(cheapItem));
+        assertEquals(6, testPlayer.getItemNumber(cheapItem));
+        assertTrue(testPlayer.upgradesContain(cheapUpgrade));
+        assertEquals(0, testPlayer.getPrestige());
 
-        p.prestigePlayer();
+        testPlayer.prestigePlayer();
 
-        assertEquals(1, p.getMoney());
-        assertTrue(p.getItems().isEmpty());
-        assertTrue(p.getUpgrades().isEmpty());
-        assertEquals(p.getPrestigeToBeGained(), 0);
-        assertEquals(p.getPrestige(), 20);
+        assertEquals(1, testPlayer.getMoney());
+        assertTrue(testPlayer.getItems().isEmpty());
+        assertTrue(testPlayer.getUpgrades().isEmpty());
+        assertEquals(testPlayer.getPrestigeToBeGained(), 0);
+        assertEquals(testPlayer.getPrestige(), 20);
+    }
+
+    @Test
+    public void playerNameSetTest() {
+        testPlayer.setName("Test");
+        testPlayer.setCompanyName("TestCompany");
+        assertEquals("Test", testPlayer.getName());
+        assertEquals("TestCompany", testPlayer.getCompanyName());
+    }
+
+    public void addItemToPlayer(Item i, int purchaseAmount) {
+        Map<Item, Integer> items = testPlayer.getItemMap();
+        if (items.containsKey(i)) {
+            items.replace(i, items.get(i) + purchaseAmount);
+        } else {
+            items.put(i, purchaseAmount);
+        }
     }
 
 }
