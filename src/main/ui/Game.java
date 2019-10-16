@@ -14,12 +14,7 @@ public class Game implements Savable, Loadable {
     public Player player;
     private Timer gameTimer;
     private TimerTask timerTask;
-    List<Item> allItems;
-    Item intern;
-    Upgrade coffee;
-    Upgrade exposure;
-    Upgrade adderall;
-    Upgrade money;
+    private List<Item> allItems;
 
     //EFFECTS: creates a new game and instantiates a player
     public Game() {
@@ -36,7 +31,7 @@ public class Game implements Savable, Loadable {
             @Override
             public void run() {
 
-                calculateMoney(player);
+                player.calculateMoney();
             }
         };
         initialize();
@@ -62,7 +57,19 @@ public class Game implements Savable, Loadable {
         ObjectInputStream loaded = new ObjectInputStream(loadFile);
         player = (Player) loaded.readObject();
         loaded.close();
+        updateItemsAfterLoading();
         System.out.println("Loaded player with " + player.getMoney() + " dollars.");
+    }
+
+    public void updateItemsAfterLoading() {
+        Map<Item, Integer> itemsToUpdate = player.getItemMap();
+        for (Item item: itemsToUpdate.keySet()) {
+            for (Item gameItem: allItems) {
+                if (item.getName().equals(gameItem.getName())) {
+                    gameItem.setNewCostAfterPurchase(itemsToUpdate.get(item));
+                }
+            }
+        }
     }
 
     //EFFECTS: returns true if a save file exists, false otherwise
@@ -92,30 +99,28 @@ public class Game implements Savable, Loadable {
 
     //EFFECTS: creates all the items and upgrades necessary for the game
     public void initialize() {
-        coffee = new Upgrade("Coffee", 10, 1.2);
-        exposure = new Upgrade("Exposure", 50, 1.5);
-        adderall = new Upgrade("Adderall", 500, 2);
-        money = new Upgrade("Money", 2000, 5);
+        initializeIntern();
+    }
+
+    private void initializeJuniorDev() {
+
+    }
+
+    //EFFECTS: creates all upgrades necessary for the intern item
+    private void initializeIntern() {
+        Upgrade coffee = new Upgrade("Coffee", 10, 1.2);
+        Upgrade exposure = new Upgrade("Exposure", 50, 1.5);
+        Upgrade adderall = new Upgrade("Adderall", 500, 2);
+        Upgrade money = new Upgrade("Money", 2000, 5);
         List<Upgrade> internUpgrades = new ArrayList<>();
         internUpgrades.add(coffee);
         internUpgrades.add(exposure);
         internUpgrades.add(adderall);
         internUpgrades.add(money);
-        intern = new Item("Intern", 10, 0.1, internUpgrades);
+        Item intern = new Item("Intern", 15, 1.0, internUpgrades);
         allItems.add(intern);
     }
 
-    private double calculateMoney(Player player) {
-        double money = player.getMoney();
-        double totalIncome = 0;
-        for (Item item : player.getItems()) {
-            totalIncome += player.getItemMap().get(item) * item.getIncome();
-        }
-        money += totalIncome;
-        player.setMoney(money);
-        player.roundMoney();
-        return player.getMoney();
-    }
 
     public void input() throws IOException {
         System.out.println("List of inputs: \n"
@@ -130,7 +135,8 @@ public class Game implements Savable, Loadable {
     public void handleInput(int input) throws IOException {
         switch (input) {
             case 1:
-                System.out.println(player.getMoney());
+                String s = String.format("\tMoney: %s\n\tIncome: %s/s", player.getMoney(), player.calculateIncome());
+                System.out.println(s);
                 break;
             case 2:
                 listItems();
@@ -149,10 +155,9 @@ public class Game implements Savable, Loadable {
 
     public void listItems() {
         int i = 1;
-        System.out.println("Press [q] to exit");
         for (Item item : allItems) {
             if (player.getMoney() > item.getCost()) {
-                System.out.println(String.format("%s:\n\tCost: %s\n\tIncome:%s\nPress %s to buy or %s to see upgrades",
+                System.out.println(String.format("%s:\n\tCost: %s\n\tIncome: %s\nPress %s to buy or %s to see upgrades",
                         item.getName(), item.getCost(), item.getIncome(), i, i + 1));
             }
         }
@@ -172,7 +177,7 @@ public class Game implements Savable, Loadable {
             }
             Item item = allItems.get(answer / 2 - 1);
             listUpgrades(item);
-            purchaseUpgradeDialogue(answer - 1, item);
+            purchaseUpgradeDialogue(item);
         } else {
             purchaseItemDialogue(answer - 1);
         }
@@ -181,7 +186,9 @@ public class Game implements Savable, Loadable {
     public void listUpgrades(Item item) {
         int i = 1;
         for (Upgrade upgrade : item.applicableUpgrades) {
-            if (!item.purchasedUpgrades.contains(upgrade)) {
+            if (item.purchasedUpgrades.contains(upgrade)) {
+                i++;
+            } else {
                 System.out.println(String.format("Name: %s \n Cost: %s \n Effect %s \n [%s] to buy or [0] to go back\n",
                         upgrade.getName(), upgrade.getCost(), upgrade.getIncome(), i));
                 i++;
@@ -193,10 +200,17 @@ public class Game implements Savable, Loadable {
         Item item = allItems.get(i);
         System.out.println(String.format("How many of %s would you like to purchase?", item.getName()));
         Scanner input = new Scanner(System.in);
-        player.purchase(item, input.nextInt());
+        try {
+            player.purchase(item, input.nextInt());
+            System.out.println(String.format("Your new income is %s.", player.calculateIncome()));
+        } catch (NotEnoughMoney notEnoughMoney) {
+            System.out.println(String.format("You need to have %s dollars.", notEnoughMoney.neededCost));
+        } finally {
+            System.out.println(String.format("You have %s dollars.", player.getMoney()));
+        }
     }
 
-    public void purchaseUpgradeDialogue(int i, Item item) {
+    public void purchaseUpgradeDialogue(Item item) {
         Scanner input = new Scanner(System.in);
         int answer = input.nextInt();
         List<Upgrade> upgrades = item.applicableUpgrades;
@@ -220,7 +234,6 @@ public class Game implements Savable, Loadable {
                 game.input();
             } catch (InputMismatchException e) {
                 System.out.println("Unexpected input!");
-                game.input();
             }
         }
     }

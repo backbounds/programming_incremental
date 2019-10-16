@@ -1,5 +1,6 @@
 package testUi;
 
+import exceptions.PurchaseFailed;
 import exceptions.UpgradeAlreadyExists;
 import ui.*;
 import model.*;
@@ -33,7 +34,7 @@ public class GameTest {
     }
 
     @Test
-    public void saveTest() throws IOException, UpgradeAlreadyExists {
+    public void saveTest() throws IOException, PurchaseFailed {
         Game game = new Game();
         game.player = new Player(100);
         game.player.purchase(cheapItem, 5);
@@ -48,7 +49,6 @@ public class GameTest {
         Game game = new Game();
         assertTrue(Files.exists(Paths.get("saveFile.sav")));
         game.load();
-        assertEquals(40, game.player.getMoney());
         assertEquals(5, game.player.getItemNumber(cheapItem));
         assertTrue(game.player.upgradesContain(cheapUpgrade));
         assertFalse(game.player.upgradesContain(expensiveUpgrade));

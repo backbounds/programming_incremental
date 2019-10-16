@@ -1,6 +1,7 @@
 package model;
 
 
+import exceptions.NotEnoughMoney;
 import exceptions.UpgradeAlreadyExists;
 
 import java.io.Serializable;
@@ -165,22 +166,53 @@ public class Player implements Serializable {
 
     //MODIFIES : this
     //EFFECTS : adds the item to the player if the player has enough money
-    public void purchase(Item i, int purchaseAmount) {
-        if (money >= i.getCost() * purchaseAmount) {
-            if (items.containsKey(i)) {
-                items.replace(i, items.get(i) + purchaseAmount);
-                System.out.println(String.format("You have purchased %s more of the item %s! You have %s dollars left",
-                        purchaseAmount, i.getName(), money));
-            } else {
-                items.put(i, purchaseAmount);
-                System.out.println(String.format("You have purchased %s of the item %s! You have %s dollars left",
-                        purchaseAmount, i.getName(), money - i.getCost() * purchaseAmount));
-            }
-            money -= i.getCost() * purchaseAmount;
-            roundMoney();
-        } else {
-            System.out.println(String.format("You need to have %s dollars, but you have %s.",
-                    i.getCost() * purchaseAmount, money));
+    public void purchase(Item item, int purchaseAmount) throws NotEnoughMoney {
+        int existingAmount;
+        try {
+            existingAmount = items.get(item);
+        } catch (NullPointerException e) {
+            existingAmount = 0;
         }
+        if (money >= item.moneyRequired(existingAmount, purchaseAmount)) {
+            makePurchase(item, purchaseAmount, existingAmount);
+        } else {
+            throw new NotEnoughMoney(item.moneyRequired(existingAmount, purchaseAmount));
+        }
+    }
+
+    private void makePurchase(Item item, int purchaseAmount, int existingAmount) {
+        if (items.containsKey(item)) {
+            items.replace(item, items.get(item) + purchaseAmount);
+            System.out.println(String.format("You have purchased %s more of the item %s!",
+                    purchaseAmount, item.getName()));
+            money -= item.getCost() * purchaseAmount;
+            item.setNewCostAfterPurchase(items.get(item) + purchaseAmount);
+        } else {
+            items.put(item, purchaseAmount);
+            System.out.println(String.format("You have purchased %s of the item %s!",
+                    purchaseAmount, item.getName()));
+            money -= item.moneyRequired(existingAmount, purchaseAmount);
+            item.setNewCostAfterPurchase(purchaseAmount);
+        }
+        roundMoney();
+    }
+
+    //EFFECTS: returns the current income of the player (in money/s)
+    public double calculateIncome() {
+        double totalIncome = 0;
+        for (Item item: items.keySet()) {
+            totalIncome += item.getIncome() * items.get(item);
+        }
+        totalIncome = Math.round(totalIncome * 100d) / 100d;
+        return totalIncome;
+    }
+
+
+    //MODIFIES: this
+    //EFFECTS: adds the player's income to their money
+    public double calculateMoney() {
+        money += calculateIncome();
+        roundMoney();
+        return money;
     }
 }

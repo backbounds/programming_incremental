@@ -1,5 +1,7 @@
 package testModel;
 
+import exceptions.NotEnoughMoney;
+import exceptions.PurchaseFailed;
 import exceptions.UpgradeAlreadyExists;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,11 +20,12 @@ public class PlayerTest {
     Item expensiveItem;
     Upgrade cheapUpgrade;
     Upgrade expensiveUpgrade;
+    int initialMoney = 200;
     List<Upgrade> upgrades = new ArrayList<>();
 
     @BeforeEach
     void setup(){
-        testPlayer = new Player(100);
+        testPlayer = new Player(initialMoney);
         cheapItem = new Item("Cheap Item", 10, 1, upgrades);
         expensiveItem = new Item("Expensive Item", 100, 1, upgrades);
         cheapUpgrade = new Upgrade("Cheap Upgrade", 10, 1.1);
@@ -31,10 +34,16 @@ public class PlayerTest {
     }
 
     @Test
-    public void purchaseTest() throws UpgradeAlreadyExists {
+    public void purchaseTest() throws PurchaseFailed {
         testPlayer.purchase(cheapItem, 1);
         testPlayer.purchase(cheapItem, cheapUpgrade);
-        testPlayer.purchase(expensiveItem, 1);
+        try {
+            testPlayer.purchase(expensiveItem, 10);
+            fail();
+        } catch (NotEnoughMoney ignored){
+
+        }
+
 
         assertTrue(testPlayer.itemsContain(cheapItem));
         assertTrue(testPlayer.upgradesContain(cheapUpgrade));
@@ -43,11 +52,21 @@ public class PlayerTest {
     }
 
     @Test
-    public void purchaseBulkTest(){
-        testPlayer.purchase(expensiveItem, 5);
+    public void purchaseBulkTest() throws PurchaseFailed{
+        try {
+            testPlayer.purchase(expensiveItem, 5);
+            fail();
+        } catch (NotEnoughMoney ignored) {
+
+        }
         testPlayer.purchase(cheapItem, 5);
         testPlayer.purchase(cheapItem, 3);
-        testPlayer.purchase(cheapItem, 10);
+        try {
+            testPlayer.purchase(cheapItem, 10);
+            fail();
+        } catch (NotEnoughMoney ignored) {
+
+        }
 
         assertFalse(testPlayer.itemsContain(expensiveItem));
         assertTrue(testPlayer.itemsContain(cheapItem));
@@ -61,13 +80,13 @@ public class PlayerTest {
         try {
             testPlayer.purchase(cheapItem, cheapUpgrade);
             fail();
-        } catch (UpgradeAlreadyExists e) {
+        } catch (UpgradeAlreadyExists ignore) {
 
         }
     }
 
     @Test
-    public void prestigePlayer() throws UpgradeAlreadyExists {
+    public void prestigePlayer() throws PurchaseFailed {
         testPlayer.setMoney(150);
         testPlayer.setPrestigeToBeGained(20);
         addItemToPlayer(cheapItem, 6);
@@ -95,6 +114,14 @@ public class PlayerTest {
         assertEquals("TestCompany", testPlayer.getCompanyName());
     }
 
+    @Test
+    public void playerCalculateMoneyTest() throws NotEnoughMoney {
+        double moneyRequired = cheapItem.moneyRequired(0, 5);
+        testPlayer.purchase(cheapItem, 5);
+        assertEquals(Math.round((initialMoney - moneyRequired) * 100d) / 100d, testPlayer.getMoney());
+        assertEquals(cheapItem.getIncome() * 5, testPlayer.calculateIncome());
+    }
+
     public void addItemToPlayer(Item i, int purchaseAmount) {
         Map<Item, Integer> items = testPlayer.getItemMap();
         if (items.containsKey(i)) {
@@ -103,5 +130,7 @@ public class PlayerTest {
             items.put(i, purchaseAmount);
         }
     }
+
+
 
 }

@@ -1,5 +1,5 @@
 package exceptions;
 
-public class UpgradeAlreadyExists extends Exception {
+public class UpgradeAlreadyExists extends PurchaseFailed {
 
 }
