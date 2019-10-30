@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public abstract class Purchasable implements Serializable {
     private String name;
@@ -31,5 +32,22 @@ public abstract class Purchasable implements Serializable {
 
     public void setIncome(double income) {
         this.income = income;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Purchasable that = (Purchasable) o;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

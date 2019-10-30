@@ -120,6 +120,7 @@ public class PlayerTest {
         testPlayer.purchase(cheapItem, 5);
         assertEquals(Math.round((initialMoney - moneyRequired) * 100d) / 100d, testPlayer.getMoney());
         assertEquals(cheapItem.getIncome() * 5, testPlayer.calculateIncome());
+        assertEquals(testPlayer.getMoney() + testPlayer.calculateIncome(), testPlayer.calculateMoney());
     }
 
     public void addItemToPlayer(Item i, int purchaseAmount) {

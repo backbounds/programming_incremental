@@ -39,4 +39,19 @@ public class Item extends Purchasable {
         moneyRequired = Math.round(moneyRequired * 100d) / 100d;
         return moneyRequired;
     }
+
+    public void addUpgradeToItem(Upgrade upgrade) {
+        if (!applicableUpgrades.contains(upgrade)) {
+            applicableUpgrades.add(upgrade);
+            upgrade.addItemToUpgrade(this);
+        }
+    }
+
+    public void removeUpgrade(Upgrade upgrade) {
+        applicableUpgrades.remove(upgrade);
+        upgrade.removeFromItem(this);
+    }
+
+
+
 }

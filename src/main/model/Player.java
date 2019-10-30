@@ -97,22 +97,13 @@ public class Player implements Serializable {
 
     //EFFECTS: returns true if a player has an item, false otherwise
     public Boolean itemsContain(Item item) {
-        String name = item.getName();
-        for (Item i: items.keySet()) {
-            if (i.getName().equals(name)) {
-                return true;
-            }
-        }
-        return false;
+        return items.containsKey(item);
     }
 
     //EFFECTS: returns the number of an item a player has
     public int getItemNumber(Item item) {
-        String name = item.getName();
-        for (Item i: items.keySet()) {
-            if (i.getName().equals(name)) {
-                return items.get(i);
-            }
+        if (itemsContain(item)) {
+            return items.get(item);
         }
         return 0;
     }
@@ -123,14 +114,8 @@ public class Player implements Serializable {
     }
 
     //EFFECTS: returns true if player has the upgrade, false otherwise
-    public boolean upgradesContain(Upgrade u) {
-        String name = u.getName();
-        for (Upgrade upgrade : upgrades) {
-            if (upgrade.getName().equals(name)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean upgradesContain(Upgrade upgrade) {
+        return upgrades.contains(upgrade);
     }
 
     //MODIFIES : this
