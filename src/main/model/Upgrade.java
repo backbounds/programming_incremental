@@ -14,7 +14,7 @@ public class Upgrade extends Purchasable {
     }
 
     //EFFECTS: applies the upgrade to double
-    public double applyUpgrade(double d) {
+    double applyUpgrade(double d) {
         double newIncome = d * getIncome();
         newIncome = Math.round(newIncome * 100d) / 100d;
         return newIncome;
@@ -23,18 +23,18 @@ public class Upgrade extends Purchasable {
     public void addItemToUpgrade(Item item) {
         if (applicableItem == null) {
             applicableItem = item;
-            item.addUpgradeToItem(this);
+            item.addApplicableUpgrade(this);
         } else if (!applicableItem.equals(item)) {
-            applicableItem.removeUpgrade(this);
+            applicableItem.removeApplicableUpgrade(this);
             applicableItem = item;
-            item.addUpgradeToItem(this);
+            item.addApplicableUpgrade(this);
         }
     }
 
     public void removeFromItem(Item item) {
         if (applicableItem != null && applicableItem.equals(item)) {
             applicableItem = null;
-            item.removeUpgrade(this);
+            item.removeApplicableUpgrade(this);
         }
     }
 

@@ -22,45 +22,45 @@ public class PurchasableTest {
 
     @Test
     public void testAddRemoveUpgrade() {
-        item.addUpgradeToItem(upgrade);
-        assertTrue(item.applicableUpgrades.contains(upgrade));
+        item.addApplicableUpgrade(upgrade);
+        assertTrue(item.getApplicableUpgrades().contains(upgrade));
         assertEquals(item, upgrade.getApplicableItem());
-        item.removeUpgrade(upgrade);
-        assertFalse(item.applicableUpgrades.contains(upgrade));
+        item.removeApplicableUpgrade(upgrade);
+        assertFalse(item.getApplicableUpgrades().contains(upgrade));
         assertNull(upgrade.getApplicableItem());
     }
 
     @Test
     public void testAddRemoveItem() {
         upgrade.addItemToUpgrade(item);
-        assertTrue(item.applicableUpgrades.contains(upgrade));
+        assertTrue(item.getApplicableUpgrades().contains(upgrade));
         assertEquals(item, upgrade.getApplicableItem());
         upgrade.removeFromItem(item);
-        assertFalse(item.applicableUpgrades.contains(upgrade));
+        assertFalse(item.getApplicableUpgrades().contains(upgrade));
         assertNull(upgrade.getApplicableItem());
     }
 
     @Test
     public void testAddMultipleItems() {
         upgrade.addItemToUpgrade(item);
-        assertTrue(item.applicableUpgrades.contains(upgrade));
+        assertTrue(item.getApplicableUpgrades().contains(upgrade));
         assertEquals(item, upgrade.getApplicableItem());
         upgrade.addItemToUpgrade(item2);
-        assertFalse(item.applicableUpgrades.contains(upgrade));
+        assertFalse(item.getApplicableUpgrades().contains(upgrade));
         assertEquals(item2, upgrade.getApplicableItem());
-        assertTrue(item2.applicableUpgrades.contains(upgrade));
+        assertTrue(item2.getApplicableUpgrades().contains(upgrade));
         assertEquals(item2, upgrade.getApplicableItem());
     }
 
     @Test
     public void testSwitchUpgrade() {
-        item.addUpgradeToItem(upgrade);
-        assertTrue(item.applicableUpgrades.contains(upgrade));
+        item.addApplicableUpgrade(upgrade);
+        assertTrue(item.getApplicableUpgrades().contains(upgrade));
         assertEquals(item, upgrade.getApplicableItem());
-        item2.addUpgradeToItem(upgrade);
-        assertFalse(item.applicableUpgrades.contains(upgrade));
+        item2.addApplicableUpgrade(upgrade);
+        assertFalse(item.getApplicableUpgrades().contains(upgrade));
         assertEquals(item2, upgrade.getApplicableItem());
-        assertTrue(item2.applicableUpgrades.contains(upgrade));
+        assertTrue(item2.getApplicableUpgrades().contains(upgrade));
         assertEquals(item2, upgrade.getApplicableItem());
     }
 }

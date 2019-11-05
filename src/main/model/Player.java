@@ -133,10 +133,10 @@ public class Player implements Serializable {
     //EFFECTS : adds the upgrade to the player if the player has enough money
     public void purchase(Item i, Upgrade u) throws UpgradeAlreadyExists {
         if (money >= u.getCost()) {
-            if (i.purchasedUpgrades.contains(u)) {
+            if (i.getPurchasedUpgrades().contains(u)) {
                 throw new UpgradeAlreadyExists();
             }
-            i.purchasedUpgrades.add(u);
+            i.getPurchasedUpgrades().add(u);
             i.addUpgrade(u);
             upgrades.add(u);
             money -= u.getCost();

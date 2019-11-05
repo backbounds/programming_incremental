@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Item extends Purchasable {
-    public List<Upgrade> applicableUpgrades;
-    public List<Upgrade> purchasedUpgrades;
-    public static final double MULTIPLIER = 1.08;
+    private List<Upgrade> applicableUpgrades;
+    private List<Upgrade> purchasedUpgrades;
+    private static final double MULTIPLIER = 1.08;
 
 
     //EFFECTS: creates an item
@@ -16,10 +16,19 @@ public class Item extends Purchasable {
         purchasedUpgrades = new ArrayList<>();
     }
 
+
+    public List<Upgrade> getApplicableUpgrades() {
+        return applicableUpgrades;
+    }
+
+    public List<Upgrade> getPurchasedUpgrades() {
+        return purchasedUpgrades;
+    }
+
     //REQUIRES: upgrade is in applicableUpgrades
     //MODIFIES: this
     //EFFECTS: adds the upgrade to the item
-    public void addUpgrade(Upgrade u) {
+    void addUpgrade(Upgrade u) {
         purchasedUpgrades.add(u);
         setIncome(u.applyUpgrade(getIncome()));
     }
@@ -40,14 +49,14 @@ public class Item extends Purchasable {
         return moneyRequired;
     }
 
-    public void addUpgradeToItem(Upgrade upgrade) {
+    public void addApplicableUpgrade(Upgrade upgrade) {
         if (!applicableUpgrades.contains(upgrade)) {
             applicableUpgrades.add(upgrade);
             upgrade.addItemToUpgrade(this);
         }
     }
 
-    public void removeUpgrade(Upgrade upgrade) {
+    public void removeApplicableUpgrade(Upgrade upgrade) {
         applicableUpgrades.remove(upgrade);
         upgrade.removeFromItem(this);
     }

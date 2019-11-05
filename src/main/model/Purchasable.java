@@ -8,7 +8,7 @@ public abstract class Purchasable implements Serializable {
     private double cost;
     private double income;
 
-    public Purchasable(String name, int cost, double income) {
+    Purchasable(String name, int cost, double income) {
         this.name = name;
         this.cost = cost;
         this.income = income;
@@ -22,7 +22,7 @@ public abstract class Purchasable implements Serializable {
         return cost;
     }
 
-    public void setCost(double cost) {
+    void setCost(double cost) {
         this.cost = cost;
     }
 
@@ -30,7 +30,7 @@ public abstract class Purchasable implements Serializable {
         return income;
     }
 
-    public void setIncome(double income) {
+    void setIncome(double income) {
         this.income = income;
     }
 
