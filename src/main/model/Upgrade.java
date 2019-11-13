@@ -38,9 +38,4 @@ public class Upgrade extends Purchasable {
         }
     }
 
-    public void getDataForList() {
-        System.out.printf("\t%s\n\t\tCost: %s\n", getName(), getCost());
-    }
-
-
 }

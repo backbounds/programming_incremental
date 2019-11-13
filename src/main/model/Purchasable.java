@@ -2,6 +2,7 @@ package model;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Observable;
 
 public abstract class Purchasable implements Serializable {
     private String name;
@@ -49,5 +50,9 @@ public abstract class Purchasable implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    public void printInformation() {
+        System.out.printf("\tName: %s\n \tCost: %s\n", name, cost);
     }
 }

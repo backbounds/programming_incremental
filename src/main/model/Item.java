@@ -61,11 +61,13 @@ public class Item extends Purchasable {
         upgrade.removeFromItem(this);
     }
 
-    public void listApplicableUpgrades() {
-        System.out.printf("The item %s has upgrades:\n", getName());
-        for (Upgrade upgrade: applicableUpgrades) {
-            upgrade.getDataForList();
+    @Override
+    public void printInformation() {
+        System.out.printf("Name: %s\nCost: %s\nApplicable:\n", getName(), getCost());
+        for (Purchasable p: applicableUpgrades) {
+            p.printInformation();
         }
+        System.out.println("\n\n");
     }
 
 }

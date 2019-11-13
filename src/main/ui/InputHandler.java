@@ -75,7 +75,7 @@ class InputHandler {
 
     private void listPlayerItems() {
         for (Item i: allItems) {
-            i.listApplicableUpgrades();
+            i.printInformation();
         }
     }
 

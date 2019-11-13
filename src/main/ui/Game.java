@@ -82,7 +82,17 @@ public class Game implements Savable, Loadable {
     }
 
     private void initializeJuniorDev() {
-
+        Upgrade coffee = new Upgrade("Coffee", 10, 1.2);
+        Upgrade exposure = new Upgrade("Exposure", 50, 1.5);
+        Upgrade adderall = new Upgrade("Adderall", 500, 2);
+        Upgrade money = new Upgrade("Money", 2000, 5);
+        List<Upgrade> juniorDevUpgrades = new ArrayList<>();
+        juniorDevUpgrades.add(coffee);
+        juniorDevUpgrades.add(exposure);
+        juniorDevUpgrades.add(adderall);
+        juniorDevUpgrades.add(money);
+        Item juniorDev = new Item("Junior Dev", 15, 1.0, juniorDevUpgrades);
+        allItems.add(juniorDev);
     }
 
     //EFFECTS: creates all upgrades necessary for the intern item
