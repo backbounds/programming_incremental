@@ -59,26 +59,17 @@ class InputHandler {
     }
 
     private void handleInput(int input) throws IOException {
-        switch (input) {
-            case 1:
-                String s = String.format("\tMoney: %s\n\tIncome: %s/s", player.getMoney(), player.calculateIncome());
-                System.out.println(s);
-                break;
-            case 2:
-                listItems();
-                break;
-            case 3:
-                game.save();
-                break;
-            case 4:
-                listPlayerItems();
-                break;
-            case 5:
-                quit();
-                break;
-            default:
-                System.out.println("Unexpected input! Please try again.");
-                break;
+        if (input == 1) {
+            String s = String.format("\tMoney: %s\n\tIncome: %s/s", player.getMoney(), player.calculateIncome());
+            System.out.println(s);
+        } else if (input == 2) {
+            listItems();
+        } else if (input == 3) {
+            game.save();
+        } else if (input == 4) {
+            listPlayerItems();
+        } else if (input == 5) {
+            quit();
         }
     }
 
