@@ -61,6 +61,11 @@ public class Item extends Purchasable {
         upgrade.removeFromItem(this);
     }
 
-
+    public void listApplicableUpgrades() {
+        System.out.printf("The item %s has upgrades:\n", getName());
+        for (Upgrade upgrade: applicableUpgrades) {
+            upgrade.getDataForList();
+        }
+    }
 
 }

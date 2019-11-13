@@ -35,7 +35,7 @@ public class GameTest {
 
     @Test
     public void saveTest() throws IOException, PurchaseFailed {
-        Game game = new Game();
+        Game game = Game.getInstance();
         game.player = new Player(100);
         game.player.purchase(cheapItem, 5);
         game.player.purchase(cheapItem, cheapUpgrade);
@@ -46,7 +46,7 @@ public class GameTest {
 
     @Test
     public void loadTest() throws IOException, ClassNotFoundException {
-        Game game = new Game();
+        Game game = Game.getInstance();
         assertTrue(Files.exists(Paths.get("saveFile.sav")));
         game.load();
         assertEquals(5, game.player.getItemNumber(cheapItem));

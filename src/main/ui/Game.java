@@ -3,11 +3,9 @@ package ui;
 
 import java.io.*;
 
-import exceptions.*;
 import model.*;
+import network.*;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Game implements Savable, Loadable {
@@ -18,7 +16,7 @@ public class Game implements Savable, Loadable {
     private InputHandler inputHandler;
 
     //EFFECTS: creates a new game and instantiates a player
-    public Game() {
+    private Game() {
         player = new Player(60);
         allItems = new ArrayList<>();
         gameTimer = new Timer();
@@ -31,6 +29,14 @@ public class Game implements Savable, Loadable {
         };
         initialize();
         inputHandler = new InputHandler(this);
+    }
+
+    private static class GameHolder {
+        private static final Game GAME = new Game();
+    }
+
+    public static Game getInstance() {
+        return GameHolder.GAME;
     }
 
     //EFFECTS: saves the game
@@ -96,7 +102,12 @@ public class Game implements Savable, Loadable {
 
 
     public static void main(String[] args) throws IOException {
-        Game game = new Game();
+        try {
+            System.out.println(WebData.getWebString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Game game = Game.getInstance();
         game.inputHandler.handleSave();
         game.gameTimer.schedule(game.timerTask, 0, 1000);
         while (true) {
@@ -106,5 +117,6 @@ public class Game implements Savable, Loadable {
                 System.out.println("Unexpected input!");
             }
         }
+
     }
 }

@@ -53,7 +53,8 @@ class InputHandler {
                 + "[1] to check your money \n"
                 + "[2] to buy items or upgrades \n"
                 + "[3] to save your game \n"
-                + "[4] to quit");
+                + "[4] to view items and applicable upgrades\n"
+                + "[5] to quit");
         handleInput(input.nextInt());
     }
 
@@ -70,11 +71,20 @@ class InputHandler {
                 game.save();
                 break;
             case 4:
+                listPlayerItems();
+                break;
+            case 5:
                 quit();
                 break;
             default:
                 System.out.println("Unexpected input! Please try again.");
                 break;
+        }
+    }
+
+    private void listPlayerItems() {
+        for (Item i: allItems) {
+            i.listApplicableUpgrades();
         }
     }
 
