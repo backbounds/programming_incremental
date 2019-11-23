@@ -10,9 +10,13 @@ import exceptions.NotEnoughMoney;
 import model.*;
 
 import javax.swing.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
+
+import static javax.swing.JOptionPane.YES_NO_OPTION;
 
 public class Game implements Savable, Loadable, Observer, ActionListener {
     public Player player;
@@ -21,9 +25,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     List<Item> allItems;
     private Item intern;
     private Item juniorDev;
-    private InputHandler inputHandler;
     private JPanel gamePanel;
-    private JTextField outputField;
+    private JTextArea outputField;
     private JButton internBtn;
     private JButton juniorDevBtn;
     private JButton seniorDevBtn;
@@ -31,6 +34,11 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     private JButton outsourceBtn;
     private JLabel moneyLabel;
     private JLabel incomeLabel;
+    private JMenuBar menuBar;
+    private JMenu fileMenu;
+    private JMenuItem save;
+    private JMenuItem load;
+    private JMenuItem quit;
 
     //EFFECTS: creates a new game and instantiates a player
     private Game() {
@@ -49,13 +57,14 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
             }
         };
         initialize();
-        inputHandler = new InputHandler(this);
         setUpButtons();
     }
 
     @Override
     public void update(Observable o, Object arg) {
         setItemCostsOnButton();
+        moneyLabel.setText("Money: $" + player.getMoney());
+        incomeLabel.setText("Income: $" + player.calculateIncome() + "/s");
     }
 
     private void setUpButtons() {
@@ -76,9 +85,10 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         }
         try {
             String result = player.purchase(toPurchase, 1);
+            outputField.setText(outputField.getText() + result);
         } catch (NotEnoughMoney e) {
             outputField.setText(outputField.getText()
-                    + String.format("You need %s, but you have %s!\n", e, player.getMoney()));
+                    + String.format("You need %s, but you have $%s!\n", e, player.getMoney()));
         }
     }
 
@@ -134,6 +144,7 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
 
     //EFFECTS: creates all the items and upgrades necessary for the game
     private void initialize() {
+        outputField.setEditable(false);
         initializeIntern();
         initializeJuniorDev();
     }
@@ -170,22 +181,35 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         internBtn.setText("Cost: $" + intern.getCost());
     }
 
-    public static void main(String[] args) throws IOException {
+    private Boolean saveExists() {
+        return Files.exists(Paths.get("saveFile.sav"));
+    }
+
+
+    private void handleSave() {
+        if (saveExists()) {
+            int loadGame = JOptionPane.showConfirmDialog(gamePanel, "You have a saved game, load it?",
+                    "Save game found", YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if (loadGame == 0) {
+                try {
+                    load();
+                } catch (IOException | ClassNotFoundException e) {
+                    JOptionPane.showMessageDialog(gamePanel, "Could not load save!",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
         Game game = Game.getInstance();
-//        game.inputHandler.handleSave();
+        game.handleSave();
         game.gameTimer.schedule(game.timerTask, 0, 1000);
         JFrame frame = new JFrame("Game");
         frame.setContentPane(game.gamePanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(new Dimension(400, 300));
+        frame.setSize(new Dimension(800, 300));
         frame.setVisible(true);
-        while (true) {
-            try {
-                game.inputHandler.input();
-            } catch (InputMismatchException e) {
-                System.out.println("Unexpected input!");
-            }
-        }
-
     }
 }

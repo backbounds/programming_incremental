@@ -160,7 +160,6 @@ public class Player extends Observable implements Serializable {
         } catch (NullPointerException e) {
             existingAmount = 0;
         }
-        purchaseAmount += existingAmount;
         if (money >= item.moneyRequired(existingAmount, purchaseAmount)) {
             return makePurchase(item, purchaseAmount, existingAmount);
         } else {
@@ -172,16 +171,16 @@ public class Player extends Observable implements Serializable {
         String result = "";
         if (items.containsKey(item)) {
             items.replace(item, items.get(item) + purchaseAmount);
-            result =  String.format("You have purchased %s more of the item %s!",
+            result =  String.format("You have purchased %s more of the item %s!\n",
                     purchaseAmount, item.getName());
-            money -= item.getCost() * purchaseAmount;
+            money -= item.moneyRequired(existingAmount, purchaseAmount);
             item.setNewCostAfterPurchase(items.get(item) + purchaseAmount);
         } else {
             items.put(item, purchaseAmount);
-            result =  String.format("You have purchased %s of the item %s!",
-                    purchaseAmount, item.getName());
+            result =  String.format("You have purchased %s of the item %s!\n",
+                    purchaseAmount - existingAmount, item.getName());
             money -= item.moneyRequired(existingAmount, purchaseAmount);
-            item.setNewCostAfterPurchase(purchaseAmount);
+            item.setNewCostAfterPurchase(purchaseAmount - existingAmount);
         }
         roundMoney();
         return result;

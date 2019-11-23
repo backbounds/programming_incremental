@@ -24,25 +24,6 @@ class InputHandler {
         input = new Scanner(System.in);
     }
 
-    //EFFECTS: returns true if a save file exists, false otherwise
-    private Boolean saveExists() {
-        return Files.exists(Paths.get("saveFile.sav"));
-    }
-
-    void handleSave() {
-        if (saveExists()) {
-            System.out.println("You already have an existing save file. Press [1] to load, [2] to start a new game.");
-            if (input.nextInt() == 1) {
-                try {
-                    game.load();
-                } catch (IOException | ClassNotFoundException ice) {
-                    System.out.println("Unable to load save file, creating new game.");
-                }
-            }
-        }
-    }
-
-
     //EFFECTS: terminates the process
     private void quit() {
         System.exit(0);
