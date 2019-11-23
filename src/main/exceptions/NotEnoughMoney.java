@@ -6,4 +6,9 @@ public class NotEnoughMoney extends PurchaseFailed {
     public NotEnoughMoney(double neededCost) {
         this.neededCost = neededCost;
     }
+
+    @Override
+    public String toString() {
+        return "$" + neededCost;
+    }
 }

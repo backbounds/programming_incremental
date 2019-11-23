@@ -8,7 +8,6 @@ public class Item extends Purchasable {
     private List<Upgrade> purchasedUpgrades;
     private static final double MULTIPLIER = 1.08;
 
-
     //EFFECTS: creates an item
     public Item(String name, int cost, double income, List<Upgrade> applicableUpgrades) {
         super(name, cost, income);

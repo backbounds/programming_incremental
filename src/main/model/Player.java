@@ -4,10 +4,11 @@ package model;
 import exceptions.NotEnoughMoney;
 import exceptions.UpgradeAlreadyExists;
 
+import javax.print.DocFlavor;
 import java.io.Serializable;
 import java.util.*;
 
-public class Player implements Serializable {
+public class Player extends Observable implements Serializable {
     private String name;
     private String companyName;
     private double money;
@@ -131,7 +132,8 @@ public class Player implements Serializable {
 
     //MODIFIES : this
     //EFFECTS : adds the upgrade to the player if the player has enough money
-    public void purchase(Item i, Upgrade u) throws UpgradeAlreadyExists {
+    public String purchase(Item i, Upgrade u) throws UpgradeAlreadyExists {
+        String result = String.format("You need to have %s dollars, but you have %s.", u.getCost(), money);
         if (money >= u.getCost()) {
             if (i.getPurchasedUpgrades().contains(u)) {
                 throw new UpgradeAlreadyExists();
@@ -141,45 +143,48 @@ public class Player implements Serializable {
             upgrades.add(u);
             money -= u.getCost();
             roundMoney();
-            System.out.println(String.format("You have purchased the upgrade %s! You have %s dollars left.",
-                    u.getName(), money));
-        } else {
-            System.out.println(String.format("You need to have %s dollars, but you have %s.",
-                    u.getCost(), money));
+            setChanged();
+            notifyObservers();
+            result = String.format("You have purchased the upgrade %s! You have %s dollars left.",
+                    u.getName(), money);
         }
+        return result;
     }
 
     //MODIFIES : this
     //EFFECTS : adds the item to the player if the player has enough money
-    public void purchase(Item item, int purchaseAmount) throws NotEnoughMoney {
+    public String purchase(Item item, int purchaseAmount) throws NotEnoughMoney {
         int existingAmount;
         try {
             existingAmount = items.get(item);
         } catch (NullPointerException e) {
             existingAmount = 0;
         }
+        purchaseAmount += existingAmount;
         if (money >= item.moneyRequired(existingAmount, purchaseAmount)) {
-            makePurchase(item, purchaseAmount, existingAmount);
+            return makePurchase(item, purchaseAmount, existingAmount);
         } else {
             throw new NotEnoughMoney(item.moneyRequired(existingAmount, purchaseAmount));
         }
     }
 
-    private void makePurchase(Item item, int purchaseAmount, int existingAmount) {
+    private String makePurchase(Item item, int purchaseAmount, int existingAmount) {
+        String result = "";
         if (items.containsKey(item)) {
             items.replace(item, items.get(item) + purchaseAmount);
-            System.out.println(String.format("You have purchased %s more of the item %s!",
-                    purchaseAmount, item.getName()));
+            result =  String.format("You have purchased %s more of the item %s!",
+                    purchaseAmount, item.getName());
             money -= item.getCost() * purchaseAmount;
             item.setNewCostAfterPurchase(items.get(item) + purchaseAmount);
         } else {
             items.put(item, purchaseAmount);
-            System.out.println(String.format("You have purchased %s of the item %s!",
-                    purchaseAmount, item.getName()));
+            result =  String.format("You have purchased %s of the item %s!",
+                    purchaseAmount, item.getName());
             money -= item.moneyRequired(existingAmount, purchaseAmount);
             item.setNewCostAfterPurchase(purchaseAmount);
         }
         roundMoney();
+        return result;
     }
 
     //EFFECTS: returns the current income of the player (in money/s)
