@@ -37,7 +37,7 @@ public class GameTest {
     public void saveTest() throws IOException, PurchaseFailed {
         Game game = Game.getInstance();
         game.player = new Player(100);
-        game.player.purchase(cheapItem, 5);
+        game.player.purchase(cheapItem);
         game.player.purchase(cheapItem, cheapUpgrade);
         game.player.purchase(expensiveItem, expensiveUpgrade);
         game.save();
@@ -49,7 +49,7 @@ public class GameTest {
         Game game = Game.getInstance();
         assertTrue(Files.exists(Paths.get("saveFile.sav")));
         game.load();
-        assertEquals(5, game.player.getItemNumber(cheapItem));
+        assertEquals(1, game.player.getItemNumber(cheapItem));
         assertTrue(game.player.upgradesContain(cheapUpgrade));
         assertFalse(game.player.upgradesContain(expensiveUpgrade));
     }

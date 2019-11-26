@@ -32,6 +32,7 @@ public class Player extends Observable implements Serializable {
 
     //EFFECTS: returns money
     public double getMoney() {
+        roundMoney();
         return money;
     }
 
@@ -151,39 +152,24 @@ public class Player extends Observable implements Serializable {
         return result;
     }
 
-    //MODIFIES : this
-    //EFFECTS : adds the item to the player if the player has enough money
-    public String purchase(Item item, int purchaseAmount) throws NotEnoughMoney {
-        int existingAmount;
-        try {
-            existingAmount = items.get(item);
-        } catch (NullPointerException e) {
-            existingAmount = 0;
-        }
-        if (money >= item.moneyRequired(existingAmount, purchaseAmount)) {
-            return makePurchase(item, purchaseAmount, existingAmount);
-        } else {
-            throw new NotEnoughMoney(item.moneyRequired(existingAmount, purchaseAmount));
-        }
-    }
 
-    private String makePurchase(Item item, int purchaseAmount, int existingAmount) {
-        String result = "";
-        if (items.containsKey(item)) {
-            items.replace(item, items.get(item) + purchaseAmount);
-            result =  String.format("You have purchased %s more of the item %s!\n",
-                    purchaseAmount, item.getName());
-            money -= item.moneyRequired(existingAmount, purchaseAmount);
-            item.setNewCostAfterPurchase(items.get(item) + purchaseAmount);
+    public String purchase(Item item) throws NotEnoughMoney {
+        double cost = item.getCost();
+        if (money >= cost) {
+            if (items.containsKey(item)) {
+                items.replace(item, items.get(item) + 1);
+                item.setNewCostAfterPurchase(items.get(item));
+            } else {
+                items.put(item, 1);
+                item.setNewCostAfterPurchase(1);
+            }
+            money -= cost;
+            setChanged();
+            notifyObservers();
+            return String.format("You have purchased %s.", item.getName());
         } else {
-            items.put(item, purchaseAmount);
-            result =  String.format("You have purchased %s of the item %s!\n",
-                    purchaseAmount - existingAmount, item.getName());
-            money -= item.moneyRequired(existingAmount, purchaseAmount);
-            item.setNewCostAfterPurchase(purchaseAmount - existingAmount);
+            throw new NotEnoughMoney(item.getCost());
         }
-        roundMoney();
-        return result;
     }
 
     //EFFECTS: returns the current income of the player (in money/s)

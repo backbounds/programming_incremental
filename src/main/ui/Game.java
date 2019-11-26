@@ -4,6 +4,7 @@ package ui;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.*;
 
 import exceptions.NotEnoughMoney;
@@ -34,11 +35,22 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     private JButton outsourceBtn;
     private JLabel moneyLabel;
     private JLabel incomeLabel;
+    private JButton button1;
+    private JButton button2;
+    private JButton button3;
+    private JButton button4;
+    private JButton button5;
+    private JLabel internLabel;
+    private JLabel juniorDevLabel;
+    private JLabel seniorDevLabel;
+    private JLabel teamLeaderLabel;
+    private JLabel outsourceLabel;
     private JMenuBar menuBar;
     private JMenu fileMenu;
     private JMenuItem save;
     private JMenuItem load;
     private JMenuItem quit;
+    private List<Upgrade> displayedUpgrades = new ArrayList<>();
 
     //EFFECTS: creates a new game and instantiates a player
     private Game() {
@@ -51,20 +63,69 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
             public void run() {
 
                 player.calculateMoney();
-                moneyLabel.setText("Money: $" + player.getMoney());
-                incomeLabel.setText("Income: $" + player.calculateIncome() + "/s");
+                setLabels();
                 setItemCostsOnButton();
             }
         };
         initialize();
         setUpButtons();
+        setUpMenuBar();
+    }
+
+    private void setLabels() {
+        moneyLabel.setText("Money: $" + player.getMoney());
+        incomeLabel.setText("Income: $" + player.calculateIncome() + "/s");
+        setButtonLabels();
+
+    }
+
+    private void setButtonLabels() {
+        List<JLabel> itemLabels = new ArrayList<>();
+        itemLabels.add(internLabel);
+        itemLabels.add(juniorDevLabel);
+        itemLabels.add(seniorDevLabel);
+        itemLabels.add(teamLeaderLabel);
+        itemLabels.add(outsourceLabel);
+        Map<Item, Integer> items = player.getItemMap();
+        for (Item item: items.keySet()) {
+            for (JLabel label: itemLabels) {
+                if (label.getText().contains(item.getName())) {
+                    label.setText(item.getName() + " (x" + items.get(item) + ")");
+                }
+            }
+        }
+    }
+
+    private void setUpMenuBar() {
+        menuBar = new JMenuBar();
+        fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        menuBar.add(fileMenu);
+        setUpMenuItems();
+    }
+
+    private void setUpMenuItems() {
+        save = new JMenuItem("Save");
+        save.setMnemonic(KeyEvent.VK_S);
+        save.setActionCommand("save");
+        save.addActionListener(this);
+        load = new JMenuItem("Load");
+        load.setMnemonic(KeyEvent.VK_L);
+        load.setActionCommand("load");
+        load.addActionListener(this);
+        quit = new JMenuItem("Quit");
+        quit.setMnemonic(KeyEvent.VK_Q);
+        quit.setActionCommand("quit");
+        quit.addActionListener(this);
+        fileMenu.add(save);
+        fileMenu.add(load);
+        fileMenu.add(quit);
     }
 
     @Override
     public void update(Observable o, Object arg) {
         setItemCostsOnButton();
-        moneyLabel.setText("Money: $" + player.getMoney());
-        incomeLabel.setText("Income: $" + player.calculateIncome() + "/s");
+        setLabels();
     }
 
     private void setUpButtons() {
@@ -76,19 +137,42 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent ae) {
-        Item toPurchase = intern;
-        String item = ae.getActionCommand();
-        for (Item i: allItems) {
-            if (i.getName().equals(item)) {
-                toPurchase = i;
+        String command = ae.getActionCommand();
+        if (command.equals("save") || command.equals("load") || command.equals("quit")) {
+            fileCommand(command);
+        } else {
+            Item toPurchase = intern;
+            for (Item i : allItems) {
+                if (i.getName().equals(command)) {
+                    toPurchase = i;
+                }
+            }
+            try {
+                String result = player.purchase(toPurchase);
+                setOutputField(result);
+            } catch (NotEnoughMoney e) {
+                setOutputField(String.format("You need %s, but you have $%s!", e, player.getMoney()));
             }
         }
-        try {
-            String result = player.purchase(toPurchase, 1);
-            outputField.setText(outputField.getText() + result);
-        } catch (NotEnoughMoney e) {
-            outputField.setText(outputField.getText()
-                    + String.format("You need %s, but you have $%s!\n", e, player.getMoney()));
+    }
+
+    private void fileCommand(String command) {
+        if (command.equals("save")) {
+            try {
+                save();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(gamePanel, "Could not save game!",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else if (command.equals("load")) {
+            try {
+                load();
+            } catch (IOException | ClassNotFoundException e) {
+                JOptionPane.showMessageDialog(gamePanel, "Could not load save!",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            System.exit(0);
         }
     }
 
@@ -107,7 +191,7 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         ObjectOutputStream saved = new ObjectOutputStream(saveFile);
         saved.writeObject(player);
         saved.close();
-        System.out.println("Saved player with " + player.getMoney() + " dollars.");
+        setOutputField("Saved player with " + player.getMoney() + " dollars.");
     }
 
 
@@ -121,21 +205,25 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         player = (Player) loaded.readObject();
         loaded.close();
         updateItemsAfterLoading();
-        System.out.println("Loaded player with " + player.getMoney() + " dollars.");
+        setOutputField("Loaded player with " + player.getMoney() + " dollars.");
     }
 
-    private  void setItemCostsOnButton() {
+    private void setItemCostsOnButton() {
         internBtn.setText("Purchase: $" + intern.getCost());
         juniorDevBtn.setText("Purchase: $" + juniorDev.getCost());
 
+    }
+
+    private void setOutputField(String output) {
+        outputField.setText(outputField.getText() + output + "\n");
     }
 
     private void updateItemsAfterLoading() {
         Map<Item, Integer> itemsToUpdate = player.getItemMap();
         for (Item item: itemsToUpdate.keySet()) {
             for (Item gameItem: allItems) {
-                if (item.getName().equals(gameItem.getName())) {
-                    gameItem.setNewCostAfterPurchase(itemsToUpdate.get(item));
+                if (item.equals(gameItem)) {
+                    gameItem.updateCostAfterLoading(itemsToUpdate.get(item));
                 }
             }
         }
@@ -205,11 +293,12 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     public static void main(String[] args) {
         Game game = Game.getInstance();
         game.handleSave();
-        game.gameTimer.schedule(game.timerTask, 0, 1000);
         JFrame frame = new JFrame("Game");
+        frame.setJMenuBar(game.menuBar);
         frame.setContentPane(game.gamePanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(new Dimension(800, 300));
         frame.setVisible(true);
+        game.gameTimer.schedule(game.timerTask, 0, 1000);
     }
 }

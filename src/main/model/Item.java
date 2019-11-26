@@ -7,12 +7,14 @@ public class Item extends Purchasable {
     private List<Upgrade> applicableUpgrades;
     private List<Upgrade> purchasedUpgrades;
     private static final double MULTIPLIER = 1.08;
+    private double baseCost;
 
     //EFFECTS: creates an item
     public Item(String name, int cost, double income, List<Upgrade> applicableUpgrades) {
         super(name, cost, income);
         this.applicableUpgrades = applicableUpgrades;
         purchasedUpgrades = new ArrayList<>();
+        baseCost = cost;
     }
 
 
@@ -38,35 +40,20 @@ public class Item extends Purchasable {
         setCost(newCost);
     }
 
-    public double moneyRequired(int existingAmount, int numberOfItems) {
-        double moneyRequired = 0;
-        for (int i = existingAmount; i < numberOfItems; i++) {
-            moneyRequired += getCost() * Math.pow(MULTIPLIER, i);
-        }
-
-        moneyRequired = Math.round(moneyRequired * 100d) / 100d;
-        return moneyRequired;
-    }
-
     public void addApplicableUpgrade(Upgrade upgrade) {
         if (!applicableUpgrades.contains(upgrade)) {
             applicableUpgrades.add(upgrade);
-            upgrade.addItemToUpgrade(this);
         }
     }
 
     public void removeApplicableUpgrade(Upgrade upgrade) {
         applicableUpgrades.remove(upgrade);
-        upgrade.removeFromItem(this);
     }
 
-    @Override
-    public void printInformation() {
-        System.out.printf("Name: %s\nCost: %s\nApplicable:\n", getName(), getCost());
-        for (Purchasable p: applicableUpgrades) {
-            p.printInformation();
-        }
-        System.out.println("\n\n");
+    public void updateCostAfterLoading(int amount) {
+        double newCost = baseCost * Math.pow(MULTIPLIER, amount);
+        newCost = Math.round(newCost * 100d) / 100d;
+        setCost(newCost);
     }
 
 }

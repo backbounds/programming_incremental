@@ -52,7 +52,4 @@ public abstract class Purchasable implements Serializable {
         return Objects.hash(name);
     }
 
-    public void printInformation() {
-        System.out.printf("\tName: %s\n \tCost: %s\n", name, cost);
-    }
 }

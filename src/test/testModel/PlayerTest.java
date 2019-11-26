@@ -35,10 +35,11 @@ public class PlayerTest {
 
     @Test
     public void purchaseTest() throws PurchaseFailed {
-        testPlayer.purchase(cheapItem, 1);
+        testPlayer.purchase(cheapItem);
         testPlayer.purchase(cheapItem, cheapUpgrade);
         try {
-            testPlayer.purchase(expensiveItem, 10);
+            testPlayer.purchase(expensiveItem);
+            testPlayer.purchase(expensiveItem);
             fail();
         } catch (NotEnoughMoney ignored){
 
@@ -47,31 +48,7 @@ public class PlayerTest {
 
         assertTrue(testPlayer.itemsContain(cheapItem));
         assertTrue(testPlayer.upgradesContain(cheapUpgrade));
-        assertFalse(testPlayer.itemsContain(expensiveItem));
         assertFalse(testPlayer.upgradesContain(expensiveUpgrade));
-    }
-
-    @Test
-    public void purchaseBulkTest() throws PurchaseFailed{
-        try {
-            testPlayer.purchase(expensiveItem, 5);
-            fail();
-        } catch (NotEnoughMoney ignored) {
-
-        }
-        testPlayer.purchase(cheapItem, 5);
-        testPlayer.purchase(cheapItem, 3);
-        try {
-            testPlayer.purchase(cheapItem, 10);
-            fail();
-        } catch (NotEnoughMoney ignored) {
-
-        }
-
-        assertFalse(testPlayer.itemsContain(expensiveItem));
-        assertTrue(testPlayer.itemsContain(cheapItem));
-        assertEquals(8, testPlayer.getItemNumber(cheapItem));
-        assertEquals(0, testPlayer.getItemNumber(expensiveItem));
     }
 
     @Test
@@ -112,15 +89,6 @@ public class PlayerTest {
         testPlayer.setCompanyName("TestCompany");
         assertEquals("Test", testPlayer.getName());
         assertEquals("TestCompany", testPlayer.getCompanyName());
-    }
-
-    @Test
-    public void playerCalculateMoneyTest() throws NotEnoughMoney {
-        double moneyRequired = cheapItem.moneyRequired(0, 5);
-        testPlayer.purchase(cheapItem, 5);
-        assertEquals(Math.round((initialMoney - moneyRequired) * 100d) / 100d, testPlayer.getMoney());
-        assertEquals(cheapItem.getIncome() * 5, testPlayer.calculateIncome());
-        assertEquals(testPlayer.getMoney() + testPlayer.calculateIncome(), testPlayer.calculateMoney());
     }
 
     public void addItemToPlayer(Item i, int purchaseAmount) {
