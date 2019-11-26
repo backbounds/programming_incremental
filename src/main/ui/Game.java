@@ -23,9 +23,12 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     public Player player;
     private Timer gameTimer;
     private TimerTask timerTask;
-    List<Item> allItems;
+    private List<Item> allItems;
     private Item intern;
     private Item juniorDev;
+    private Item seniorDev;
+    private Item teamLeader;
+    private Item outsource;
     private JPanel gamePanel;
     private JTextArea outputField;
     private JButton internBtn;
@@ -35,11 +38,11 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     private JButton outsourceBtn;
     private JLabel moneyLabel;
     private JLabel incomeLabel;
-    private JButton button1;
-    private JButton button2;
-    private JButton button3;
-    private JButton button4;
-    private JButton button5;
+    private JButton upgradeIntern;
+    private JButton upgradeJuniorDev;
+    private JButton upgradeSeniorDev;
+    private JButton upgradeTeamLeader;
+    private JButton upgradeOutsourcing;
     private JLabel internLabel;
     private JLabel juniorDevLabel;
     private JLabel seniorDevLabel;
@@ -50,7 +53,7 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     private JMenuItem save;
     private JMenuItem load;
     private JMenuItem quit;
-    private List<Upgrade> displayedUpgrades = new ArrayList<>();
+    private Map<Item, JButton> upgradeButtons;
 
     //EFFECTS: creates a new game and instantiates a player
     private Game() {
@@ -94,6 +97,16 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
                 }
             }
         }
+    }
+
+    private void setUpgradeButtons() {
+        upgradeButtons.put(intern, upgradeIntern);
+        upgradeButtons.put(juniorDev, upgradeJuniorDev);
+        upgradeButtons.put(seniorDev, upgradeSeniorDev);
+        upgradeButtons.put(teamLeader, upgradeTeamLeader);
+        upgradeButtons.put(outsource, upgradeOutsourcing);
+
+
     }
 
     private void setUpMenuBar() {
@@ -205,13 +218,16 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         player = (Player) loaded.readObject();
         loaded.close();
         updateItemsAfterLoading();
+        setLabels();
         setOutputField("Loaded player with " + player.getMoney() + " dollars.");
     }
 
     private void setItemCostsOnButton() {
         internBtn.setText("Purchase: $" + intern.getCost());
         juniorDevBtn.setText("Purchase: $" + juniorDev.getCost());
-
+        seniorDevBtn.setText("Purchase: $" + seniorDev.getCost());
+        teamLeaderBtn.setText("Purchase: $" + seniorDev.getCost());
+        outsourceBtn.setText("Purchase: $" + outsource.getCost());
     }
 
     private void setOutputField(String output) {
@@ -235,22 +251,9 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         outputField.setEditable(false);
         initializeIntern();
         initializeJuniorDev();
-    }
-
-    private void initializeJuniorDev() {
-        Upgrade coffee = new Upgrade("Coffee", 10, 1.2);
-        Upgrade exposure = new Upgrade("Exposure", 50, 1.5);
-        Upgrade adderall = new Upgrade("Adderall", 500, 2);
-        Upgrade money = new Upgrade("Money", 2000, 5);
-        List<Upgrade> juniorDevUpgrades = new ArrayList<>();
-        juniorDevUpgrades.add(coffee);
-        juniorDevUpgrades.add(exposure);
-        juniorDevUpgrades.add(adderall);
-        juniorDevUpgrades.add(money);
-        juniorDev = new Item("Junior Dev", 15, 1.0, juniorDevUpgrades);
-        allItems.add(juniorDev);
-        juniorDevBtn.setText("Cost: $" + juniorDev.getCost());
-
+        initializeSeniorDev();
+        initializeTeamLeader();
+        initializeOutsource();
     }
 
     //EFFECTS: creates all upgrades necessary for the intern item
@@ -266,7 +269,62 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         internUpgrades.add(money);
         intern = new Item("Intern", 15, 1.0, internUpgrades);
         allItems.add(intern);
-        internBtn.setText("Cost: $" + intern.getCost());
+    }
+
+    private void initializeJuniorDev() {
+        Upgrade workstation = new Upgrade("Workstation", 10, 1.2);
+        Upgrade slack = new Upgrade("Slack", 50, 1.5);
+        Upgrade snacks = new Upgrade("Snacks", 500, 2);
+        Upgrade breaks = new Upgrade("Breaks", 2000, 5);
+        List<Upgrade> juniorDevUpgrades = new ArrayList<>();
+        juniorDevUpgrades.add(workstation);
+        juniorDevUpgrades.add(slack);
+        juniorDevUpgrades.add(snacks);
+        juniorDevUpgrades.add(breaks);
+        juniorDev = new Item("Junior Dev", 100, 5.0, juniorDevUpgrades);
+        allItems.add(juniorDev);
+    }
+
+    private void initializeSeniorDev() {
+        Upgrade office = new Upgrade("Office", 2000, 1.5);
+        Upgrade training = new Upgrade("Leader Training", 5000, 2);
+        Upgrade vacation = new Upgrade("Vacation", 15000, 3);
+        Upgrade teams = new Upgrade("Teams", 20000, 5);
+        List<Upgrade> seniorDevUpgrades = new ArrayList<>();
+        seniorDevUpgrades.add(office);
+        seniorDevUpgrades.add(training);
+        seniorDevUpgrades.add(vacation);
+        seniorDevUpgrades.add(teams);
+        seniorDev = new Item("Senior Dev", 500, 40, seniorDevUpgrades);
+        allItems.add(seniorDev);
+    }
+
+    private void initializeTeamLeader() {
+        Upgrade communication = new Upgrade("Communication", 12000, 2);
+        Upgrade shirts = new Upgrade("Dress Code", 20000, 3);
+        Upgrade size = new Upgrade("Team Size", 40000, 2);
+        Upgrade share = new Upgrade("Sell Shares", 100000, 5);
+        List<Upgrade> teamLeaderUpgrades = new ArrayList<>();
+        teamLeaderUpgrades.add(communication);
+        teamLeaderUpgrades.add(shirts);
+        teamLeaderUpgrades.add(size);
+        teamLeaderUpgrades.add(share);
+        teamLeader = new Item("Team Leader", 3000, 100, teamLeaderUpgrades);
+        allItems.add(teamLeader);
+    }
+
+    private void initializeOutsource() {
+        Upgrade documentation = new Upgrade("Documentation", 50000, 2);
+        Upgrade diversify = new Upgrade("More Countries", 200000, 3);
+        Upgrade oversight = new Upgrade("Provide Oversight", 400000, 3);
+        Upgrade contract = new Upgrade("Contract Employees", 1000000, 5);
+        List<Upgrade> outsourceUpgrades = new ArrayList<>();
+        outsourceUpgrades.add(documentation);
+        outsourceUpgrades.add(diversify);
+        outsourceUpgrades.add(oversight);
+        outsourceUpgrades.add(contract);
+        outsource = new Item("Outsource", 10000, 400, outsourceUpgrades);
+        allItems.add(outsource);
     }
 
     private Boolean saveExists() {
