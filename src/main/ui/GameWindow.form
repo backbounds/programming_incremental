@@ -72,6 +72,7 @@
         </constraints>
         <properties>
           <text value="Senior Dev (x0)"/>
+          <toolTipText value="They also don't work very hard, but they ask for more money."/>
         </properties>
       </component>
       <component id="38198" class="javax.swing.JLabel" binding="teamLeaderLabel">
@@ -80,6 +81,7 @@
         </constraints>
         <properties>
           <text value="Team Leader (x0)"/>
+          <toolTipText value="Turns out when you put people in teams, they are more efficient. Who would have thought?"/>
         </properties>
       </component>
       <component id="c6fa0" class="javax.swing.JLabel" binding="outsourceLabel">
@@ -88,7 +90,7 @@
         </constraints>
         <properties>
           <text value="Outsource (x0)"/>
-          <toolTipText value="&quot;Experience&quot; is more important than money anyway."/>
+          <toolTipText value="Why do the work yourself, when you can pay someone else to do it instead?"/>
         </properties>
       </component>
       <component id="2bf3" class="javax.swing.JLabel" binding="moneyLabel">
