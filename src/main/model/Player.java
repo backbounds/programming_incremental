@@ -133,12 +133,8 @@ public class Player extends Observable implements Serializable {
 
     //MODIFIES : this
     //EFFECTS : adds the upgrade to the player if the player has enough money
-    public String purchase(Item i, Upgrade u) throws UpgradeAlreadyExists {
-        String result = String.format("You need to have %s dollars, but you have %s.", u.getCost(), money);
+    public String purchase(Item i, Upgrade u) throws NotEnoughMoney {
         if (money >= u.getCost()) {
-            if (i.getPurchasedUpgrades().contains(u)) {
-                throw new UpgradeAlreadyExists();
-            }
             i.getPurchasedUpgrades().add(u);
             i.addUpgrade(u);
             upgrades.add(u);
@@ -146,12 +142,11 @@ public class Player extends Observable implements Serializable {
             roundMoney();
             setChanged();
             notifyObservers();
-            result = String.format("You have purchased the upgrade %s! You have %s dollars left.",
-                    u.getName(), money);
+        } else {
+            throw new NotEnoughMoney(u.getCost());
         }
-        return result;
+        return String.format("You have purchased the upgrade %s! You have %s dollars left.", u.getName(), money);
     }
-
 
     public String purchase(Item item) throws NotEnoughMoney {
         double cost = item.getCost();

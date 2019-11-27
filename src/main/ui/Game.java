@@ -53,7 +53,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     private JMenuItem save;
     private JMenuItem load;
     private JMenuItem quit;
-    private Map<Item, JButton> upgradeButtons;
+    private Map<Item, JButton> upgradeButtons = new HashMap<>();
+    private Map<Item, JButton> itemButtons = new HashMap<>();
 
     //EFFECTS: creates a new game and instantiates a player
     private Game() {
@@ -61,6 +62,9 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         allItems = new ArrayList<>();
         gameTimer = new Timer();
         player.addObserver(this);
+        initialize();
+        setUpButtons();
+        setUpMenuBar();
         timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -68,18 +72,15 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
                 player.calculateMoney();
                 setLabels();
                 setItemCostsOnButton();
+                setUpgradeButtons();
             }
         };
-        initialize();
-        setUpButtons();
-        setUpMenuBar();
     }
 
     private void setLabels() {
         moneyLabel.setText("Money: $" + player.getMoney());
         incomeLabel.setText("Income: $" + player.calculateIncome() + "/s");
         setButtonLabels();
-
     }
 
     private void setButtonLabels() {
@@ -93,18 +94,24 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         for (Item item: items.keySet()) {
             for (JLabel label: itemLabels) {
                 if (label.getText().contains(item.getName())) {
-                    label.setText(item.getName() + " (x" + items.get(item) + ")");
+                    label.setText(item.getName() + " (x" + items.get(item) + ")" + "[$" + item.getIncome() + "/s]");
                 }
             }
         }
     }
 
     private void setUpgradeButtons() {
-        upgradeButtons.put(intern, upgradeIntern);
-        upgradeButtons.put(juniorDev, upgradeJuniorDev);
-        upgradeButtons.put(seniorDev, upgradeSeniorDev);
-        upgradeButtons.put(teamLeader, upgradeTeamLeader);
-        upgradeButtons.put(outsource, upgradeOutsourcing);
+        for (Item item: upgradeButtons.keySet()) {
+            for (Upgrade upgrade: item.getApplicableUpgrades()) {
+                if (!item.getPurchasedUpgrades().contains(upgrade) && player.getItemMap().containsKey(item)) {
+                    JButton button = upgradeButtons.get(item);
+                    button.setText(upgrade.getName() + ": $" + upgrade.getCost());
+                    button.setActionCommand(upgrade.getName());
+                    button.setEnabled(true);
+                    break;
+                }
+            }
+        }
 
 
     }
@@ -138,14 +145,18 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     @Override
     public void update(Observable o, Object arg) {
         setItemCostsOnButton();
+        setUpgradeButtons();
         setLabels();
     }
 
     private void setUpButtons() {
-        internBtn.setActionCommand(intern.getName());
-        internBtn.addActionListener(this);
-        juniorDevBtn.setActionCommand(juniorDev.getName());
-        juniorDevBtn.addActionListener(this);
+        for (Item item: itemButtons.keySet()) {
+            JButton button = itemButtons.get(item);
+            button.setActionCommand(item.getName());
+            button.addActionListener(this);
+            button = upgradeButtons.get(item);
+            button.addActionListener(this);
+        }
     }
 
     @Override
@@ -154,18 +165,36 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         if (command.equals("save") || command.equals("load") || command.equals("quit")) {
             fileCommand(command);
         } else {
-            Item toPurchase = intern;
-            for (Item i : allItems) {
-                if (i.getName().equals(command)) {
-                    toPurchase = i;
+            for (Item item: allItems) {
+                if (item.getName().equals(command)) {
+                    purchaseItem(item);
+                } else {
+                    for (Upgrade upgrade: item.getApplicableUpgrades()) {
+                        if (upgrade.getName().equals(command)) {
+                            purchaseUpgrade(item, upgrade);
+                            break;
+                        }
+                    }
                 }
             }
-            try {
-                String result = player.purchase(toPurchase);
-                setOutputField(result);
-            } catch (NotEnoughMoney e) {
-                setOutputField(String.format("You need %s, but you have $%s!", e, player.getMoney()));
-            }
+        }
+    }
+
+    private void purchaseItem(Item item) {
+        try {
+            String result = player.purchase(item);
+            setOutputField(result);
+        } catch (NotEnoughMoney e) {
+            setOutputField(String.format("You need %s, but you have $%s!", e, player.getMoney()));
+        }
+    }
+
+    private void purchaseUpgrade(Item item, Upgrade upgrade) {
+        try {
+            String result = player.purchase(item, upgrade);
+            setOutputField(result);
+        } catch (NotEnoughMoney e) {
+            setOutputField(String.format("You need %s, but you have $%s!", e, player.getMoney()));
         }
     }
 
@@ -269,6 +298,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         internUpgrades.add(money);
         intern = new Item("Intern", 15, 1.0, internUpgrades);
         allItems.add(intern);
+        itemButtons.put(intern, internBtn);
+        upgradeButtons.put(intern, upgradeIntern);
     }
 
     private void initializeJuniorDev() {
@@ -283,6 +314,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         juniorDevUpgrades.add(breaks);
         juniorDev = new Item("Junior Dev", 100, 5.0, juniorDevUpgrades);
         allItems.add(juniorDev);
+        itemButtons.put(juniorDev, juniorDevBtn);
+        upgradeButtons.put(juniorDev, upgradeJuniorDev);
     }
 
     private void initializeSeniorDev() {
@@ -297,6 +330,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         seniorDevUpgrades.add(teams);
         seniorDev = new Item("Senior Dev", 500, 40, seniorDevUpgrades);
         allItems.add(seniorDev);
+        itemButtons.put(seniorDev, seniorDevBtn);
+        upgradeButtons.put(seniorDev, upgradeSeniorDev);
     }
 
     private void initializeTeamLeader() {
@@ -311,6 +346,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         teamLeaderUpgrades.add(share);
         teamLeader = new Item("Team Leader", 3000, 100, teamLeaderUpgrades);
         allItems.add(teamLeader);
+        itemButtons.put(teamLeader, teamLeaderBtn);
+        upgradeButtons.put(teamLeader, upgradeTeamLeader);
     }
 
     private void initializeOutsource() {
@@ -325,6 +362,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         outsourceUpgrades.add(contract);
         outsource = new Item("Outsource", 10000, 400, outsourceUpgrades);
         allItems.add(outsource);
+        itemButtons.put(outsource, outsourceBtn);
+        upgradeButtons.put(outsource, upgradeOutsourcing);
     }
 
     private Boolean saveExists() {

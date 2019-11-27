@@ -52,17 +52,6 @@ public class PlayerTest {
     }
 
     @Test
-    public void exceptionTest() throws UpgradeAlreadyExists {
-        testPlayer.purchase(cheapItem, cheapUpgrade);
-        try {
-            testPlayer.purchase(cheapItem, cheapUpgrade);
-            fail();
-        } catch (UpgradeAlreadyExists ignore) {
-
-        }
-    }
-
-    @Test
     public void prestigePlayer() throws PurchaseFailed {
         testPlayer.setMoney(150);
         testPlayer.setPrestigeToBeGained(20);
