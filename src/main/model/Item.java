@@ -35,18 +35,18 @@ public class Item extends Purchasable {
         setIncome(u.applyUpgrade(getIncome()));
     }
 
+    //REQUIRES: numberOfItems is positive
+    //MODIFIES: this
+    //EFFECTS: increases the cost of the item depending on how many the player has
     public void setNewCostAfterPurchase(int numberOfItems) {
         double newCost = getCost() * Math.pow(MULTIPLIER, numberOfItems);
         newCost = Math.round(newCost * 100d) / 100d;
         setCost(newCost);
     }
 
-    public void updateCostAfterLoading(int amount) {
-        double newCost = baseCost * Math.pow(MULTIPLIER, amount);
-        newCost = Math.round(newCost * 100d) / 100d;
-        setCost(newCost);
-    }
 
+    //EFFECTS: compares applicableUpgrades and purchasedUpgrades to see if they have the same items, returns true
+    //         if they do, false otherwise.
     public boolean hasPurchasedAllUpgrades() {
         return new HashSet<>(applicableUpgrades).equals(new HashSet<>(purchasedUpgrades));
     }

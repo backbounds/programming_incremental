@@ -2,7 +2,6 @@ package testModel;
 
 import exceptions.NotEnoughMoney;
 import exceptions.PurchaseFailed;
-import exceptions.UpgradeAlreadyExists;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,7 @@ public class PlayerTest {
     Player testPlayer;
     Item cheapItem;
     Item expensiveItem;
+    Item veryExpensiveItem;
     Upgrade cheapUpgrade;
     Upgrade expensiveUpgrade;
     int initialMoney = 200;
@@ -28,6 +28,7 @@ public class PlayerTest {
         testPlayer = new Player(initialMoney);
         cheapItem = new Item("Cheap Item", 10, 1, upgrades);
         expensiveItem = new Item("Expensive Item", 100, 1, upgrades);
+        veryExpensiveItem = new Item("Very Expensive Item", 1000, 1, upgrades);
         cheapUpgrade = new Upgrade("Cheap Upgrade", 10, 1.1);
         expensiveUpgrade = new Upgrade("Expensive Upgrade", 100, 1.1);
 
@@ -35,6 +36,7 @@ public class PlayerTest {
 
     @Test
     public void purchaseTest() throws PurchaseFailed {
+        testPlayer.purchase(cheapItem);
         testPlayer.purchase(cheapItem);
         testPlayer.purchase(cheapItem, cheapUpgrade);
         try {
@@ -49,6 +51,7 @@ public class PlayerTest {
         assertTrue(testPlayer.itemsContain(cheapItem));
         assertTrue(testPlayer.upgradesContain(cheapUpgrade));
         assertFalse(testPlayer.upgradesContain(expensiveUpgrade));
+        assertEquals(0, testPlayer.getItemNumber(veryExpensiveItem));
     }
 
     @Test

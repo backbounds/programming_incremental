@@ -154,6 +154,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         fileMenu.add(quit);
     }
 
+    //MODIFIES: this
+    //EFFECTS: updates UI labels after the player makes a purchase
     @Override
     public void update(Observable o, Object arg) {
         setItemCostsOnButton();
@@ -171,6 +173,8 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         }
     }
 
+    //MODIFIES: this
+    //EFFECTS: responds with the appropriate action based on a UI button press
     @Override
     public void actionPerformed(ActionEvent ae) {
         String command = ae.getActionCommand();
@@ -281,7 +285,6 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         for (Item item: itemsToUpdate.keySet()) {
             for (Item gameItem: allItems) {
                 if (item.getName().equals(gameItem.getName())) {
-//                    gameItem.updateCostAfterLoading(itemsToUpdate.get(item));
                     gameItem = item;
                 }
             }

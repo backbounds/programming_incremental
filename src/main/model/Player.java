@@ -2,9 +2,7 @@ package model;
 
 
 import exceptions.NotEnoughMoney;
-import exceptions.UpgradeAlreadyExists;
 
-import javax.print.DocFlavor;
 import java.io.Serializable;
 import java.util.*;
 
@@ -131,7 +129,7 @@ public class Player extends Observable implements Serializable {
     }
 
 
-    //MODIFIES : this
+    //MODIFIES : this, item
     //EFFECTS : adds the upgrade to the player if the player has enough money
     public String purchase(Item i, Upgrade u) throws NotEnoughMoney {
         if (money >= u.getCost()) {
@@ -148,6 +146,8 @@ public class Player extends Observable implements Serializable {
         return String.format("You have purchased the upgrade %s for %s!", u.getName(), i.getName());
     }
 
+    //MODIFIES: this, item
+    //EFFECTS: purchases an item, throws a NotEnoughMoney exception if the player doesn't have enough money
     public String purchase(Item item) throws NotEnoughMoney {
         double cost = item.getCost();
         String result = "";

@@ -2,7 +2,6 @@ package testUi;
 
 import exceptions.NotEnoughMoney;
 import exceptions.PurchaseFailed;
-import exceptions.UpgradeAlreadyExists;
 import ui.*;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
