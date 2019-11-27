@@ -1,5 +1,6 @@
 package testUi;
 
+import exceptions.NotEnoughMoney;
 import exceptions.PurchaseFailed;
 import exceptions.UpgradeAlreadyExists;
 import ui.*;
@@ -39,7 +40,11 @@ public class GameTest {
         game.player = new Player(100);
         game.player.purchase(cheapItem);
         game.player.purchase(cheapItem, cheapUpgrade);
-        game.player.purchase(expensiveItem, expensiveUpgrade);
+        try {
+            game.player.purchase(expensiveItem, expensiveUpgrade);
+        } catch (NotEnoughMoney ignored) {
+
+        }
         game.save();
         assertTrue(Files.exists(Paths.get("saveFile.sav")));
     }

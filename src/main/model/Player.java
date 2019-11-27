@@ -145,25 +145,32 @@ public class Player extends Observable implements Serializable {
         } else {
             throw new NotEnoughMoney(u.getCost());
         }
-        return String.format("You have purchased the upgrade %s! You have %s dollars left.", u.getName(), money);
+        return String.format("You have purchased the upgrade %s for %s!", u.getName(), i.getName());
     }
 
     public String purchase(Item item) throws NotEnoughMoney {
         double cost = item.getCost();
+        String result = "";
         if (money >= cost) {
-            if (items.containsKey(item)) {
-                items.replace(item, items.get(item) + 1);
-                item.setNewCostAfterPurchase(items.get(item));
-            } else {
-                items.put(item, 1);
-                item.setNewCostAfterPurchase(1);
-            }
+            result = makePurchase(item);
             money -= cost;
             setChanged();
             notifyObservers();
-            return String.format("You have purchased %s.", item.getName());
         } else {
             throw new NotEnoughMoney(item.getCost());
+        }
+        return result;
+    }
+
+    private String makePurchase(Item item) {
+        if (items.containsKey(item)) {
+            items.replace(item, items.get(item) + 1);
+            item.setNewCostAfterPurchase(items.get(item));
+            return String.format("You now have %s of %s!", items.get(item), item.getName());
+        } else {
+            items.put(item, 1);
+            item.setNewCostAfterPurchase(1);
+            return String.format("You bought your first %s!", item.getName());
         }
     }
 

@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class Item extends Purchasable {
@@ -40,20 +41,14 @@ public class Item extends Purchasable {
         setCost(newCost);
     }
 
-    public void addApplicableUpgrade(Upgrade upgrade) {
-        if (!applicableUpgrades.contains(upgrade)) {
-            applicableUpgrades.add(upgrade);
-        }
-    }
-
-    public void removeApplicableUpgrade(Upgrade upgrade) {
-        applicableUpgrades.remove(upgrade);
-    }
-
     public void updateCostAfterLoading(int amount) {
         double newCost = baseCost * Math.pow(MULTIPLIER, amount);
         newCost = Math.round(newCost * 100d) / 100d;
         setCost(newCost);
+    }
+
+    public boolean hasPurchasedAllUpgrades() {
+        return new HashSet<>(applicableUpgrades).equals(new HashSet<>(purchasedUpgrades));
     }
 
 }
