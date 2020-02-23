@@ -58,7 +58,7 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
 
     //EFFECTS: creates a new game and instantiates a player
     private Game() {
-        player = new Player(100000);
+        player = new Player(40);
         allItems = new ArrayList<>();
         gameTimer = new Timer();
         player.addObserver(this);

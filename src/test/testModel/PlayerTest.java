@@ -55,27 +55,6 @@ public class PlayerTest {
     }
 
     @Test
-    public void prestigePlayer() throws PurchaseFailed {
-        testPlayer.setMoney(150);
-        testPlayer.setPrestigeToBeGained(20);
-        addItemToPlayer(cheapItem, 6);
-        testPlayer.purchase(cheapItem, cheapUpgrade);
-
-        assertTrue(testPlayer.itemsContain(cheapItem));
-        assertEquals(6, testPlayer.getItemNumber(cheapItem));
-        assertTrue(testPlayer.upgradesContain(cheapUpgrade));
-        assertEquals(0, testPlayer.getPrestige());
-
-        testPlayer.prestigePlayer();
-
-        assertEquals(1, testPlayer.getMoney());
-        assertTrue(testPlayer.getItems().isEmpty());
-        assertTrue(testPlayer.getUpgrades().isEmpty());
-        assertEquals(testPlayer.getPrestigeToBeGained(), 0);
-        assertEquals(testPlayer.getPrestige(), 20);
-    }
-
-    @Test
     public void playerNameSetTest() {
         testPlayer.setName("Test");
         testPlayer.setCompanyName("TestCompany");

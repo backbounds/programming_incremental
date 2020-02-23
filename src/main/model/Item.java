@@ -8,14 +8,24 @@ public class Item extends Purchasable {
     private List<Upgrade> applicableUpgrades;
     private List<Upgrade> purchasedUpgrades;
     private static final double MULTIPLIER = 1.08;
-    private double baseCost;
+    private double currCost;
 
     //EFFECTS: creates an item
     public Item(String name, int cost, double income, List<Upgrade> applicableUpgrades) {
         super(name, cost, income);
         this.applicableUpgrades = applicableUpgrades;
         purchasedUpgrades = new ArrayList<>();
-        baseCost = cost;
+        currCost = cost;
+    }
+
+    @Override
+    public double getCost() {
+        return currCost;
+    }
+
+    @Override
+    public void setCost(double newCost) {
+        currCost = newCost;
     }
 
 

@@ -10,8 +10,6 @@ public class Player extends Observable implements Serializable {
     private String name;
     private String companyName;
     private double money;
-    private int prestigeToBeGained;
-    private int prestige;
     private List<Upgrade> upgrades = new ArrayList<>();
     private HashMap<Item, Integer> items = new HashMap<>();
 
@@ -41,23 +39,6 @@ public class Player extends Observable implements Serializable {
     }
 
 
-    //EFFECTS: returns prestige level
-    public int getPrestige() {
-        return prestige;
-    }
-
-
-    //EFFECTS: returns potential prestige
-    public int getPrestigeToBeGained() {
-        return prestigeToBeGained;
-    }
-
-
-    //EFFECTS: returns the list of items the player has
-    public Set<Item> getItems() {
-        return items.keySet();
-    }
-
     //EFFECTS: returns the map of player items
     public Map<Item, Integer> getItemMap() {
         return items;
@@ -74,17 +55,6 @@ public class Player extends Observable implements Serializable {
     //EFFECTS: sets name
     public void setName(String name) {
         this.name = name;
-    }
-
-
-    //EFFECTS: sets money
-    public void setMoney(double money) {
-        this.money = money;
-    }
-
-    //EFFECTS: add prestige points
-    public void setPrestigeToBeGained(int prestigeToBeGained) {
-        this.prestigeToBeGained = prestigeToBeGained;
     }
 
 
@@ -116,16 +86,6 @@ public class Player extends Observable implements Serializable {
     //EFFECTS: returns true if player has the upgrade, false otherwise
     public boolean upgradesContain(Upgrade upgrade) {
         return upgrades.contains(upgrade);
-    }
-
-    //MODIFIES : this
-    //EFFECTS: reset money, items, and upgrades, but add accumulated prestige points
-    public void prestigePlayer() {
-        money = 1;
-        prestige = +prestigeToBeGained;
-        upgrades.clear();
-        items.clear();
-        prestigeToBeGained = 0;
     }
 
 
