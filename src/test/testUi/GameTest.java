@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GameTest {
-    Game game;
     Item cheapItem;
     Item expensiveItem;
     Upgrade cheapUpgrade;

@@ -54,6 +54,13 @@ public class Item extends Purchasable {
         setCost(newCost);
     }
 
+    public double costToPurchase(int toPurchase) {
+        double result = 0;
+        for (int i = 0; i < toPurchase; i++) {
+            result += currCost * Math.pow(MULTIPLIER, i);
+        }
+        return Math.round(result * 100.0) / 100.0;
+    }
 
     //EFFECTS: compares applicableUpgrades and purchasedUpgrades to see if they have the same items, returns true
     //         if they do, false otherwise.
