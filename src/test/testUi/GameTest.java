@@ -36,7 +36,7 @@ public class GameTest {
     public void saveTest() throws IOException, PurchaseFailed {
         Game game = Game.getInstance();
         game.player = new Player(100);
-        game.player.purchase(cheapItem);
+        game.player.purchase(cheapItem, 1);
         game.player.purchase(cheapItem, cheapUpgrade);
         try {
             game.player.purchase(expensiveItem, expensiveUpgrade);

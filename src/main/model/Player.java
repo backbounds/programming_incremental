@@ -108,30 +108,29 @@ public class Player extends Observable implements Serializable {
 
     //MODIFIES: this, item
     //EFFECTS: purchases an item, throws a NotEnoughMoney exception if the player doesn't have enough money
-    public String purchase(Item item) throws NotEnoughMoney {
-        double cost = item.getCost();
+    public String purchase(Item item, int toPurchase) throws NotEnoughMoney {
+        double cost = item.costToPurchase(toPurchase);
         String result = "";
         if (money >= cost) {
-            result = makePurchase(item);
+            result = makePurchase(item, toPurchase);
             money -= cost;
             setChanged();
             notifyObservers();
         } else {
-            throw new NotEnoughMoney(item.getCost());
+            throw new NotEnoughMoney(item.costToPurchase(toPurchase));
         }
         return result;
     }
 
-    private String makePurchase(Item item) {
+    private String makePurchase(Item item, int toAdd) {
         if (items.containsKey(item)) {
-            items.replace(item, items.get(item) + 1);
+            items.replace(item, items.get(item) + toAdd);
             item.setNewCostAfterPurchase(items.get(item));
-            return String.format("You now have %s of %s!", items.get(item), item.getName());
         } else {
-            items.put(item, 1);
-            item.setNewCostAfterPurchase(1);
-            return String.format("You bought your first %s!", item.getName());
+            items.put(item, toAdd);
+            item.setNewCostAfterPurchase(toAdd);
         }
+        return String.format("You bought %s of %s!", toAdd, item.getName());
     }
 
     //EFFECTS: returns the current income of the player (in money/s)

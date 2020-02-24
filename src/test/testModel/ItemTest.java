@@ -29,7 +29,7 @@ public class ItemTest {
     public void itemCostSetTest() {
         testPlayer = new Player(10);
         try {
-            testPlayer.purchase(testItem);
+            testPlayer.purchase(testItem, 1);
         } catch (NotEnoughMoney e) {
             fail();
         }

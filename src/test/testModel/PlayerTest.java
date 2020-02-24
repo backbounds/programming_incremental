@@ -36,12 +36,10 @@ public class PlayerTest {
 
     @Test
     public void purchaseTest() throws PurchaseFailed {
-        testPlayer.purchase(cheapItem);
-        testPlayer.purchase(cheapItem);
+        testPlayer.purchase(cheapItem, 2);
         testPlayer.purchase(cheapItem, cheapUpgrade);
         try {
-            testPlayer.purchase(expensiveItem);
-            testPlayer.purchase(expensiveItem);
+            testPlayer.purchase(expensiveItem, 2);
             fail();
         } catch (NotEnoughMoney ignored){
 

@@ -48,6 +48,7 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
     private JLabel seniorDevLabel;
     private JLabel teamLeaderLabel;
     private JLabel outsourceLabel;
+    private JComboBox quantitySelector;
     private JMenuBar menuBar;
     private JMenu fileMenu;
     private JMenuItem save;
@@ -183,7 +184,7 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         } else {
             for (Item item: allItems) {
                 if (item.getName().equals(command)) {
-                    purchaseItem(item);
+                    purchaseItem(item, getPurchaseQuantity());
                 } else {
                     for (Upgrade upgrade: item.getApplicableUpgrades()) {
                         if (upgrade.getName().equals(command)) {
@@ -196,9 +197,9 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         }
     }
 
-    private void purchaseItem(Item item) {
+    private void purchaseItem(Item item, int toPurchase) {
         try {
-            String result = player.purchase(item);
+            String result = player.purchase(item, toPurchase);
             setOutputField(result);
         } catch (NotEnoughMoney e) {
             setOutputField(String.format("You need %s, but you have $%s.", e, player.getMoney()));
@@ -269,12 +270,17 @@ public class Game implements Savable, Loadable, Observer, ActionListener {
         setOutputField("Loaded player with " + player.getMoney() + " dollars.");
     }
 
+    private int getPurchaseQuantity() {
+        return Integer.parseInt((String) quantitySelector.getSelectedItem());
+    }
+
     private void setItemCostsOnButton() {
-        internBtn.setText("Purchase: $" + intern.getCost());
-        juniorDevBtn.setText("Purchase: $" + juniorDev.getCost());
-        seniorDevBtn.setText("Purchase: $" + seniorDev.getCost());
-        teamLeaderBtn.setText("Purchase: $" + teamLeader.getCost());
-        outsourceBtn.setText("Purchase: $" + outsource.getCost());
+        int toBuy = getPurchaseQuantity();
+        internBtn.setText("Purchase (x" + toBuy + "): $" + intern.costToPurchase(toBuy));
+        juniorDevBtn.setText("Purchase (x" + toBuy + "): $" + juniorDev.costToPurchase(toBuy));
+        seniorDevBtn.setText("Purchase (x" + toBuy + "): $" + seniorDev.costToPurchase(toBuy));
+        teamLeaderBtn.setText("Purchase (x" + toBuy + "): $" + teamLeader.costToPurchase(toBuy));
+        outsourceBtn.setText("Purchase (x" + toBuy + "): $" + outsource.costToPurchase(toBuy));
     }
 
     private void setOutputField(String output) {
